@@ -109,7 +109,7 @@ import qualified Unison.Util.Free              as Free
 import           Unison.Util.List               ( uniqueBy )
 import qualified Unison.Util.Relation          as R
 import qualified Unison.Util.Relation4          as R4
-import           U.Util.Timing             (unsafeTime)
+import           U.Util.Timing
 import           Unison.Util.TransitiveClosure  (transitiveClosure)
 import           Unison.Var                     ( Var )
 import qualified Unison.Var                    as Var
@@ -569,8 +569,7 @@ loop = do
                         ->  Branch.Star r NameSegment)
                     -> Action m (Either Event Input) v ()
         manageLinks silent srcs mdValues op = do
-          mdValuels <- fmap (first toList) <$>
-            traverse (\x -> fmap (,x) (getHQTerms x)) mdValues
+          mdValuels <- fmap (first toList) <$> traverse (\x -> fmap (,x) (getHQTerms x)) mdValues
           before <- Branch.head <$> use root
           traverse_ go mdValuels
           after  <- Branch.head <$> use root
@@ -614,6 +613,7 @@ loop = do
                         tyUpdates types = foldl' go types srclt
                             where go types src = op (src, mdType, mdValue) types
                     in  over Branch.terms tmUpdates . over Branch.types tyUpdates $ b0
+                [Referent.Con{}] -> error "TODO: complain with different err message than 'ambiguous'"
                 mdValues -> respond $ MetadataAmbiguous hqn ppe mdValues
         delete
           :: (Path.HQSplit' -> Set Referent) -- compute matching terms
@@ -1692,8 +1692,8 @@ loop = do
           b <- importRemoteBranch ns syncMode
           let msg = Just $ PullAlreadyUpToDate ns path
           let destAbs = resolveToAbsolute path
-          let printDiffPath = if Verbosity.isSilent verbosity then Nothing else Just path 
-          lift $ mergeBranchAndPropagateDefaultPatch Branch.RegularMerge inputDescription msg b printDiffPath destAbs 
+          let printDiffPath = if Verbosity.isSilent verbosity then Nothing else Just path
+          lift $ mergeBranchAndPropagateDefaultPatch Branch.RegularMerge inputDescription msg b printDiffPath destAbs
 
       PushRemoteBranchI mayRepo path syncMode -> do
         let srcAbs = resolveToAbsolute path
@@ -2219,7 +2219,7 @@ mergeBranchAndPropagateDefaultPatch mode inputDescription unchangedMessage srcb 
     destb <- getAt dest
     merged <- eval $ Merge mode srcb destb
     b <- updateAtM inputDescription dest (const $ pure merged)
-    for_ dest0 $ \dest0 -> 
+    for_ dest0 $ \dest0 ->
       diffHelper (Branch.head destb) (Branch.head merged) >>=
         respondNumbered . uncurry (ShowDiffAfterMerge dest0 dest)
     pure b
@@ -2912,11 +2912,13 @@ diffHelper :: Monad m
   -> Action' m v (PPE.PrettyPrintEnv, OBranchDiff.BranchDiffOutput v Ann)
 diffHelper before after = do
   hqLength <- eval CodebaseHashLength
-  diff     <- eval . Eval $ BranchDiff.diff0 before after
+  diff     <- timeM "diff0" $ eval . Eval $ BranchDiff.diff0 before after
+  let !_ = timeWhnf "diff" diff
   names0 <- basicPrettyPrintNames0A
   ppe <- PPE.suffixifiedPPE <$> prettyPrintEnvDecl (Names names0 mempty)
-  (ppe,) <$>
-    OBranchDiff.toOutput
+  bdo <-
+    timeM "toOutput" $
+      OBranchDiff.toOutput
       loadTypeOfTerm
       declOrBuiltin
       hqLength
@@ -2924,6 +2926,8 @@ diffHelper before after = do
       (Branch.toNames0 after)
       ppe
       diff
+  let !_ = timeWhnf "bdo" bdo
+  pure (ppe, bdo)
 
 loadTypeOfTerm :: Referent -> Action m i v (Maybe (Type v Ann))
 loadTypeOfTerm (Referent.Ref r) = eval $ LoadTypeOfTerm r

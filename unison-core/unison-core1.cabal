@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3dc00080efb41dcfb41dd8f03bea8ab3e2550a41a92fe1962b9210b52393ce88
+-- hash: 22fa9f7df512b53f799dcbbaa6e8a9f2040065de815efcca61c264475325e158
 
 name:           unison-core1
 version:        0.0.0
@@ -73,6 +73,7 @@ library
       src
   default-extensions:
       ApplicativeDo
+      BangPatterns
       BlockArguments
       DeriveFunctor
       DerivingStrategies

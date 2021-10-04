@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns, NamedFieldPuns #-}
+
 module Unison.Codebase.BranchDiff where
 
 import Unison.Prelude
@@ -17,14 +19,19 @@ import qualified Unison.Util.Relation4 as R4
 import Unison.Util.Relation (Relation)
 import Unison.Util.Relation3 (Relation3)
 import Unison.Runtime.IOSource (isPropagatedValue)
+import U.Util.Timing
 
 data DiffType a = Create a | Delete a | Modify a deriving Show
 
+-- | 
 -- todo: maybe simplify this file using Relation3?
 data NamespaceSlice r = NamespaceSlice {
   names :: Relation r Name,
   metadata :: Relation3 r Name Metadata.Value
 } deriving Show
+
+-- possible alternative to NamespaceSlice:
+--   Map r (Map Name (Set Metadata.Value))
 
 data DiffSlice r = DiffSlice {
 --  tpatchUpdates :: Relation r r, -- old new
@@ -43,13 +50,18 @@ data BranchDiff = BranchDiff
   } deriving Show
 
 diff0 :: forall m. Monad m => Branch0 m -> Branch0 m -> m BranchDiff
-diff0 old new = BranchDiff terms types <$> patchDiff old new where
-  (terms, types) =
-    computeSlices
-      (deepr4ToSlice (Branch.deepTerms old) (Branch.deepTermMetadata old))
-      (deepr4ToSlice (Branch.deepTerms new) (Branch.deepTermMetadata new))
-      (deepr4ToSlice (Branch.deepTypes old) (Branch.deepTypeMetadata old))
-      (deepr4ToSlice (Branch.deepTypes new) (Branch.deepTypeMetadata new))
+diff0 old new = do
+  let !s0 = timeWhnf "slice-old-terms" (deepr4ToSlice (Branch.deepTerms old) (Branch.deepTermMetadata old))
+  let !s1 = timeWhnf "slice-new-terms" (deepr4ToSlice (Branch.deepTerms new) (Branch.deepTermMetadata new))
+  let !s2 = timeWhnf "slice-old-types" (deepr4ToSlice (Branch.deepTypes old) (Branch.deepTypeMetadata old))
+  let !s3 = timeWhnf "slice-new-types" (deepr4ToSlice (Branch.deepTypes new) (Branch.deepTypeMetadata new))
+  case computeSlices s0 s1 s2 s3 of
+    (terms, types) -> do
+      let !_ = timeWhnf "terms" terms
+      let !_ = timeWhnf "types" types
+      patches <- patchDiff old new
+      let !_ = timeWhnf "patches" patches
+      pure (BranchDiff terms types patches)
 
 patchDiff :: forall m. Monad m => Branch0 m -> Branch0 m -> m (Map Name (DiffType PatchDiff))
 patchDiff old new = do
@@ -87,28 +99,38 @@ computeSlices :: NamespaceSlice Referent
               -> NamespaceSlice Reference
               -> NamespaceSlice Reference
               -> (DiffSlice Referent, DiffSlice Reference)
-computeSlices oldTerms newTerms oldTypes newTypes = (termsOut, typesOut) where
-  termsOut =
-    let nc = allNames oldTerms newTerms
-        nu = allNamespaceUpdates oldTerms newTerms in
-    DiffSlice
-      nu
-      (allAdds nc nu)
-      (allRemoves nc nu)
-      (remainingNameChanges nc)
-      (addedMetadata oldTerms newTerms)
-      (removedMetadata oldTerms newTerms)
-  typesOut =
-    let nc = allNames oldTypes newTypes
-        nu = allNamespaceUpdates oldTypes newTypes in
-    DiffSlice
-      nu
-      (allAdds nc nu)
-      (allRemoves nc nu)
-      (remainingNameChanges nc)
-      (addedMetadata oldTypes newTypes)
-      (removedMetadata oldTypes newTypes)
-
+computeSlices oldTerms newTerms oldTypes newTypes =
+  let !termsOut = timeWhnf "termsOut" $
+        let !_ = timeWhnf "oldTerms" oldTerms in
+        let !_ = timeWhnf "newTerms" newTerms in
+        let !nc = timeWhnf "allNames oldTerms newTerms" $ allNames oldTerms newTerms in
+        let !nu = timeWhnf "allNamespaceUpdates oldTerms newTerms" $ allNamespaceUpdates oldTerms newTerms in
+        let !taddedMetadata = timeWhnf "addedMetadata oldTerms newTerms" addedMetadata oldTerms newTerms in
+        let !talladds = timeWhnf "allAdds nc nu" $ allAdds nc nu in
+        let !tallremoves = timeWhnf "allRemoves nc nu" $ allRemoves nc nu in
+        let !trenames = timeWhnf "remainingNameChanges nc" $ remainingNameChanges nc in
+        let !tremovedMetadata = timeWhnf "removedMetadata oldTerms newTerms" $ removedMetadata oldTerms newTerms in
+        DiffSlice
+          { tallnamespaceUpdates = nu,
+            talladds,
+            tallremoves,
+            trenames,
+            taddedMetadata,
+            tremovedMetadata
+          } in
+  let !typesOut = timeWhnf "typesOut" $
+        let nc = allNames oldTypes newTypes
+            nu = allNamespaceUpdates oldTypes newTypes in
+        DiffSlice
+          { tallnamespaceUpdates = nu,
+            talladds = allAdds nc nu,
+            tallremoves = allRemoves nc nu,
+            trenames = remainingNameChanges nc,
+            taddedMetadata = addedMetadata oldTypes newTypes,
+            tremovedMetadata = removedMetadata oldTypes newTypes
+          } in
+  (termsOut, typesOut)
+  where
   allNames :: Ord r => NamespaceSlice r -> NamespaceSlice r -> Map r (Set Name, Set Name)
   allNames old new = R.outerJoinDomMultimaps (names old) (names new)
 

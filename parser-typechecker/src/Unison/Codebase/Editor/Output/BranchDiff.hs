@@ -1,3 +1,4 @@
+{-# Language BangPatterns #-}
 {-# Language DeriveFoldable, DeriveTraversable #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE ViewPatterns #-}
@@ -15,6 +16,7 @@ import Unison.Codebase.BranchDiff (BranchDiff(BranchDiff), DiffSlice)
 import qualified Unison.Util.Relation as R
 import qualified Unison.Util.Relation3 as R3
 import qualified Unison.Codebase.Metadata as Metadata
+import U.Util.Timing
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import Unison.Util.Set (symmetricDifference)
@@ -135,12 +137,17 @@ toOutput typeOf declOrBuiltin hqLen names1 names2 ppe
     -- or updated 😅
     -- "getMetadataUpdates" = a defn has been updated via change of metadata
     getMetadataUpdates :: Ord r => DiffSlice r -> Map Name (Set r, Set r)
-    getMetadataUpdates s = Map.fromList
+    getMetadataUpdates s =
+      let !_ = timeWhnf "s" s in
+      let !z0 = timeWhnf "taddedMetadata s" $ BranchDiff.taddedMetadata s in
+      let !z1 = timeWhnf "tremovedMetadata s" $ BranchDiff.tremovedMetadata s in
+      let !z2 = timeWhnf "talladds s" $ BranchDiff.talladds s in
+      let !z3 = timeWhnf "tallremoves s" $ BranchDiff.tallremoves s in
+      Map.fromList
       [ (n, (Set.singleton r, Set.singleton r)) -- the reference is unchanged
-      | (r,n,v) <- R3.toList $ BranchDiff.taddedMetadata s <>
-                               BranchDiff.tremovedMetadata s
-      , R.notMember r n (BranchDiff.talladds s)
-      , R.notMember r n (BranchDiff.tallremoves s)
+      | (r,n,v) <- R3.toList $ z0 <> z1
+      , R.notMember r n z2
+      , R.notMember r n z3
       -- don't count it as a metadata update if it already's already a regular update
       , let (oldRefs, newRefs) =
              Map.findWithDefault mempty n (BranchDiff.tallnamespaceUpdates s)
@@ -189,46 +196,56 @@ toOutput typeOf declOrBuiltin hqLen names1 names2 ppe
       (,) <$> (Just <$> for (toList rs_old) (loadOld forceHQ n))
           <*> for (toList rs_new) (loadNew hidePropagatedMd forceHQ n rs_old)
     in liftA3 (,,)
-        (sortOn (view _1 . head . snd) <$> liftA2 (<>)
+        (timeM "updatedTypes" (sortOn (view _1 . head . snd) <$> liftA2 (<>)
           (for (Map.toList $ Map.filter isSimpleUpdate nsUpdates) (loadEntry True))
-          (for (Map.toList metadataUpdates) (loadEntry False)))
-        (for (Map.toList $ Map.filter isNewConflict nsUpdates) (loadEntry True))
-        (for (Map.toList $ Map.filter isResolvedConflict nsUpdates) (loadEntry True))
+          (for (Map.toList metadataUpdates) (loadEntry False))))
+        (timeM "newTypeConflicts" $ for (Map.toList $ Map.filter isNewConflict nsUpdates) (loadEntry True))
+        (timeM "resolvedTypeConflicts" $ for (Map.toList $ Map.filter isResolvedConflict nsUpdates) (loadEntry True))
 
   (updatedTerms :: [UpdateTermDisplay v a],
    newTermConflicts :: [UpdateTermDisplay v a],
-   resolvedTermConflicts :: [UpdateTermDisplay v a]) <- let
+   resolvedTermConflicts :: [UpdateTermDisplay v a]) <-
     -- things where what the name pointed to changed
-    nsUpdates = BranchDiff.namespaceUpdates termsDiff
+    let !_ = timeWhnf "termsDiff" termsDiff in
+    let !nsUpdates = timeWhnf "nsUpdates" $ BranchDiff.namespaceUpdates termsDiff in
     -- things where the metadata changed (`uniqueBy` below removes these
     -- if they were already included in `nsUpdates)
-    metadataUpdates = getMetadataUpdates termsDiff
-    loadOld forceHQ n r_old =
-      (,,) <$> pure (if forceHQ then Names2.hqTermName' hqLen n r_old
-                     else Names2.hqTermName hqLen names1 n r_old)
-           <*> pure r_old
-           <*> typeOf r_old
-    loadNew hidePropagatedMd forceHQ n rs_old r_new =
-      (,,,) <$> pure (if forceHQ then Names2.hqTermName' hqLen n r_new
-                      else Names2.hqTermName hqLen names2 n r_new)
-            <*> pure r_new
-            <*> typeOf r_new
-            <*> fillMetadata ppe (getNewMetadataDiff hidePropagatedMd termsDiff n rs_old r_new)
-    loadEntry hidePropagatedMd (n, (rs_old, rs_new))
-      -- if the references haven't changed, it's code for: only the metadata has changed
-      -- and we can ignore the old references in the output.
-      | rs_old == rs_new = (Nothing,) <$> for (toList rs_new) (loadNew hidePropagatedMd False n rs_old)
-      | otherwise        = let forceHQ = Set.size rs_old > 1 || Set.size rs_new > 1 in
-                           (,) <$> (Just <$> for (toList rs_old) (loadOld forceHQ n))
-                               <*> for (toList rs_new) (loadNew hidePropagatedMd forceHQ n rs_old)
+    let !metadataUpdates = timeWhnf "metadataUpdates" $ getMetadataUpdates termsDiff in
+    let loadOld :: Bool -> Name -> Referent -> m (SimpleTermDisplay v a)
+        loadOld forceHQ n r_old =
+          (,,) <$> pure (if forceHQ then Names2.hqTermName' hqLen n r_old
+                         else Names2.hqTermName hqLen names1 n r_old)
+               <*> pure r_old
+               <*> typeOf r_old
+        loadNew :: Bool -> Bool -> Name -> Set Referent -> Referent -> m (TermDisplay v a)
+        loadNew hidePropagatedMd forceHQ n rs_old r_new =
+          (,,,) <$> pure (if forceHQ then Names2.hqTermName' hqLen n r_new
+                          else Names2.hqTermName hqLen names2 n r_new)
+                <*> pure r_new
+                <*> typeOf r_new
+                <*> fillMetadata ppe (getNewMetadataDiff hidePropagatedMd termsDiff n rs_old r_new)
+        loadEntry :: Bool -> (Name, (Set Referent, Set Referent)) -> m (Maybe [SimpleTermDisplay v a], [TermDisplay v a])
+        loadEntry hidePropagatedMd (n, (rs_old, rs_new))
+          -- if the references haven't changed, it's code for: only the metadata has changed
+          -- and we can ignore the old references in the output.
+          | rs_old == rs_new = (Nothing,) <$> for (toList rs_new) (loadNew hidePropagatedMd False n rs_old)
+          | otherwise        = let forceHQ = Set.size rs_old > 1 || Set.size rs_new > 1 in
+                               (,) <$> (Just <$> for (toList rs_old) (loadOld forceHQ n))
+                                   <*> for (toList rs_new) (loadNew hidePropagatedMd forceHQ n rs_old)
     in liftA3 (,,)
         -- this is sorting the Update section back into alphabetical Name order
         -- after calling loadEntry on the two halves.
-        (sortOn (view _1 . head . snd) <$> liftA2 (<>)
-          (for (Map.toList $ Map.filter isSimpleUpdate nsUpdates) (loadEntry True))
-          (for (Map.toList metadataUpdates) (loadEntry False)))
-        (for (Map.toList $ Map.filter isNewConflict nsUpdates) (loadEntry True))
-        (for (Map.toList $ Map.filter isResolvedConflict nsUpdates) (loadEntry True))
+        (do
+          let !x0 = timeWhnf "x0" (Map.toList $ Map.filter isSimpleUpdate nsUpdates)
+          x1 <- timeM "x1" $ for x0 (loadEntry True)
+          let !_x2 = timeWhnf "x2" x1
+          let !x3 = timeWhnf "x3" (Map.toList metadataUpdates)
+          x4 <- timeM "x4" $ for x3 (loadEntry False)
+          let !_x5 = timeWhnf "x5" x4
+          let !x6 = timeWhnf "x6" (sortOn (view _1 . head . snd) (x1 <> x4))
+          pure x6)
+        (timeM "newTermConflicts" $ for (Map.toList $ Map.filter isNewConflict nsUpdates) (loadEntry True))
+        (timeM "resolvedTermConflicts" $ for (Map.toList $ Map.filter isResolvedConflict nsUpdates) (loadEntry True))
 
   let propagatedUpdates :: Int =
       -- counting the number of named auto-propagated definitions
@@ -269,7 +286,7 @@ toOutput typeOf declOrBuiltin hqLen names1 names2 ppe
         [ (name, diff)
         | (name, BranchDiff.Create diff) <- Map.toList patchesDiff ]
 
-  removedTypes :: [RemovedTypeDisplay v a] <- let
+  removedTypes :: [RemovedTypeDisplay v a] <- timeM "removedTypes" $ let
     typeRemoves :: [(Reference, [Name])] = sortOn snd $
       Map.toList . fmap toList . R.toMultimap . BranchDiff.tallremoves $ typesDiff
     in for typeRemoves $ \(r, ns) ->
@@ -277,7 +294,7 @@ toOutput typeOf declOrBuiltin hqLen names1 names2 ppe
            <*> pure r
            <*> declOrBuiltin r
 
-  removedTerms :: [RemovedTermDisplay v a] <- let
+  removedTerms :: [RemovedTermDisplay v a] <- timeM "removedTerms" $ let
     termRemoves :: [(Referent, [Name])] = sortOn snd $
       Map.toList . fmap toList . R.toMultimap . BranchDiff.tallremoves $ termsDiff
     in for termRemoves $ \(r, ns) ->
@@ -305,8 +322,8 @@ toOutput typeOf declOrBuiltin hqLen names1 names2 ppe
                 <*> pure (Set.map (\n -> Names2.hqTypeName hqLen names1 n r) ol'names)
                 <*> pure (Set.map (\n -> Names2.hqTypeName hqLen names2 n r) new'names)
 
-  renamedTypes :: [RenameTypeDisplay v a] <- renamedType (BranchDiff.trenames typesDiff)
-  renamedTerms :: [RenameTermDisplay v a] <- renamedTerm (BranchDiff.trenames termsDiff)
+  renamedTypes :: [RenameTypeDisplay v a] <- timeM "renamedTypes" $ renamedType (BranchDiff.trenames typesDiff)
+  renamedTerms :: [RenameTermDisplay v a] <- timeM "renamedTerms" $ renamedTerm (BranchDiff.trenames termsDiff)
 
   pure $ BranchDiffOutput
     updatedTypes

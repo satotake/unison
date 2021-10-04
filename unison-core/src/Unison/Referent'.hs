@@ -15,8 +15,8 @@ import Unison.Prelude (Word64)
 --
 -- Slightly odd naming. This is the "referent of term name in the codebase",
 -- rather than the target of a Reference.
-
--- | When @Ref'@ then @r@ represents a term.
+--
+-- When @Ref'@ then @r@ represents a term.
 --
 -- When @Con'@ then @r@ is a type declaration.
 data Referent' r = Ref' r | Con' r ConstructorId ConstructorType

@@ -112,20 +112,56 @@ outerJoinRanMultimaps :: (Ord a, Ord b, Ord c)
                       -> Map c (Set a, Set b)
 outerJoinRanMultimaps a b = outerJoinDomMultimaps (swap a) (swap b)
 
-innerJoinDomMultimaps :: (Ord a, Ord b, Ord c)
-                      => Relation a b
-                      -> Relation a c
-                      -> Map a (Set b, Set c)
+-- | @innerJoinDomMultimaps xs ys@ returns the "inner join" of the domains of @xs@ and @ys@.
+--
+-- You can think of this function as having the following, higher-level type:
+--
+-- @
+-- innertJoinDomMultimaps
+--   :: (Ord a, Ord b, Ord c)
+--   => Relation a b
+--   => Relation a c
+--   => Relation a (Either b c)
+-- @
+--
+-- with the invariant on the output relation that no @a@ will be related to /only/ @Left b@s or @Right c@s; rather, each
+-- @a@ will be related to at least one @Left b@ and at least one @Right c@.
+--
+-- However, this function returns a lower-level @Map a (Set b, Set c)@ instead, for performance reasons, because the
+-- calling code currently does not have a need for the higher-level relation.
+--
+-- /O(a1 * log(a2))/, where /a1/ is the number of elements in the smaller domain, and /a2/ is the number of elements in
+-- the larger domain. In other words, permuting the two arguments does not affect performance.
+innerJoinDomMultimaps ::
+  (Ord a, Ord b, Ord c) =>
+  Relation a b ->
+  Relation a c ->
+  Map a (Set b, Set c)
 innerJoinDomMultimaps b c =
-  Map.fromList
-    [ (a, (lookupDom a b, lookupDom a c))
-    | a <- S.toList $ dom b `S.intersection` dom c ]
+  -- Performance note: it's faster to loop over the smaller map, looking up each key in the larger
+  if M.size db <= M.size dc
+    then intersect (,) db dc
+    else intersect (\x y -> (y, x)) dc db
+  where
+    db = domain b
+    dc = domain c
+    intersect f = Map.merge Map.dropMissing Map.dropMissing (Map.zipWithMatched \_ x y -> f x y)
 
+-- | @innerJoinRanMultimaps xs ys@ returns the "inner join" of the ranges of @xs@ and @ys@.
+--
+-- See 'innerJoinDomMultimaps'; this function has identical performance.
 innerJoinRanMultimaps :: (Ord a, Ord b, Ord c)
                       => Relation a c
                       -> Relation b c
                       -> Map c (Set a, Set b)
 innerJoinRanMultimaps a b = innerJoinDomMultimaps (swap a) (swap b)
+
+oink :: Int -> IO Int
+oink n = do
+  let !xs = fromList [(a,a) | a <- take n ['a'..]]
+  let !ys = fromList [(a,a) | a <- take n ['b'..]]
+  let !n = M.foldl' (\n (ps, qs) -> n + S.size ps + S.size qs) 0 (innerJoinDomMultimaps xs ys)
+  pure n
 
 joinDom :: (Ord a, Ord b, Ord c) => Relation a b -> Relation a c -> Relation a (b,c)
 joinDom b c = swap $ joinRan (swap b) (swap c)
@@ -210,10 +246,14 @@ delete x y r = r { domain = domain', range = range' }
   erase e s = if S.singleton e == s then Nothing else Just $ S.delete e s
 
 -- | The Set of values associated with a value in the domain.
+--
+-- /O(log(a))/.
 lookupDom' :: Ord a => a -> Relation a b -> Maybe (Set b)
 lookupDom' x r = M.lookup x (domain r)
 
 -- | The Set of values associated with a value in the range.
+--
+-- /O(log(b))/.
 lookupRan' :: Ord b => b -> Relation a b -> Maybe (Set a)
 lookupRan' y r = M.lookup y (range r)
 
@@ -275,12 +315,16 @@ manyRan :: Ord b => b -> Relation a b -> Bool
 manyRan b = (>1) . S.size . lookupRan b
 
 -- | Returns the domain in the relation, as a Set, in its entirety.
+--
+-- /O(a)/.
 dom :: Relation a b -> Set a
 dom r = M.keysSet (domain r)
 
 
 
 -- | Returns the range of the relation, as a Set, in its entirety.
+--
+-- /O(b)/.
 ran :: Relation a b -> Set b
 ran r = M.keysSet (range r)
 
@@ -518,6 +562,9 @@ fromManyDom
   :: (Foldable f, Ord a, Ord b) => f a -> b -> Relation a b
 fromManyDom as b = insertManyDom as b mempty
 
+-- | Swap the domain and range of a relation.
+--
+-- /O(1)/.
 swap :: Relation a b -> Relation b a
 swap (Relation a b) = Relation b a
 

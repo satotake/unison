@@ -77,12 +77,12 @@ main = do
   case command of
      PrintVersion ->
        putStrLn $ progName ++ " version: " ++ Version.gitDescribe
-     Init -> do 
-      PT.putPrettyLn $ 
-        P.callout 
+     Init -> do
+      PT.putPrettyLn $
+        P.callout
           "⚠️"
           (P.lines ["The Init command has been removed"
-                  , P.newline 
+                  , P.newline
                   , P.wrap "Use --codebase-create to create a codebase at a specified location and open it:"
                   , P.indentN 2 (P.hiBlue "$ ucm --codebase-create myNewCodebase")
                   , "Running UCM without the --codebase-create flag: "
@@ -105,7 +105,7 @@ main = do
                 (closeCodebase, theCodebase) <- getCodebaseOrExit mCodePathOption
                 rt <- RTI.startRuntime
                 let fileEvent = Input.UnisonFileChanged (Text.pack file) contents
-                launch currentDir config rt theCodebase [Left fileEvent, Right $ Input.ExecuteI mainName, Right Input.QuitI] Nothing ShouldNotDownloadBase 
+                launch currentDir config rt theCodebase [Left fileEvent, Right $ Input.ExecuteI mainName, Right Input.QuitI] Nothing ShouldNotDownloadBase
                 closeCodebase
      Run (RunFromPipe mainName) -> do
       e <- safeReadUtf8StdIn
@@ -119,7 +119,7 @@ main = do
             currentDir config rt theCodebase
             [Left fileEvent, Right $ Input.ExecuteI mainName, Right Input.QuitI]
             Nothing
-            ShouldNotDownloadBase 
+            ShouldNotDownloadBase
           closeCodebase
      Transcript shouldFork shouldSaveCodebase transcriptFiles ->
        runTranscripts renderUsageInfo shouldFork shouldSaveCodebase mCodePathOption transcriptFiles
@@ -158,7 +158,7 @@ prepareTranscriptDir shouldFork mCodePathOption = do
       -- A forked codebase does not need to Create a codebase, because it already exists
       getCodebaseOrExit mCodePathOption
       path <- Codebase.getCodebaseDir (fmap codebasePathOptionToPath mCodePathOption)
-      PT.putPrettyLn $ P.lines [ 
+      PT.putPrettyLn $ P.lines [
         P.wrap "Transcript will be run on a copy of the codebase at: ", "",
         P.indentN 2 (P.string path)
         ]
@@ -245,16 +245,18 @@ launch
   -> Codebase.Codebase IO Symbol Ann
   -> [Either Input.Event Input.Input]
   -> Maybe Server.BaseUrl
-  -> ShouldDownloadBase 
+  -> ShouldDownloadBase
   -> IO ()
 launch dir config runtime codebase inputs serverBaseUrl shouldDownloadBase =
-  let 
+  let
     downloadBase = case defaultBaseLib of
-                      Just remoteNS | shouldDownloadBase == ShouldDownloadBase -> Welcome.DownloadBase remoteNS
+                      Just remoteNS | shouldDownloadBase == ShouldDownloadBase ->
+                        Welcome.DownloadBase remoteNS
                       _ -> Welcome.DontDownloadBase
 
     welcome = Welcome.Welcome downloadBase dir Version.gitDescribe
   in
+    trace ("shouldDownloadBase = " ++ show shouldDownloadBase ++ ", defaultBaseLib = " ++ show defaultBaseLib) $
     CommandLine.main
       dir
       welcome
@@ -297,15 +299,15 @@ getCodebaseOrExit codebasePathOption = do
           executableName <- P.text . Text.pack <$> getProgName
 
           case error of
-            NoCodebaseFoundAtSpecifiedDir -> 
+            NoCodebaseFoundAtSpecifiedDir ->
               pure (P.lines
-                [ "No codebase exists in " <> pDir <> ".", 
+                [ "No codebase exists in " <> pDir <> ".",
                   "Run `" <> executableName <> " --codebase-create " <> P.string dir <> " to create one, then try again!"
                 ])
 
             FoundV1Codebase ->
               pure (P.lines
-                [ "Found a v1 codebase at " <> pDir <> ".", 
+                [ "Found a v1 codebase at " <> pDir <> ".",
                   "v1 codebases are no longer supported in this version of the UCM.",
                   "Please download version M2g of the UCM to upgrade."
                 ])
@@ -322,7 +324,7 @@ getCodebaseOrExit codebasePathOption = do
       PT.putPrettyLn' . P.indentN 2 . P.wrap $ "I created a new codebase for you at" <> P.blue pDir
       pure cb
 
-    OpenedCodebase _ cb -> 
+    OpenedCodebase _ cb ->
       pure cb
 
   where
@@ -330,13 +332,13 @@ getCodebaseOrExit codebasePathOption = do
 
 argsToCodebaseInitOptions :: Maybe CodebasePathOption -> IO CodebaseInit.CodebaseInitOptions
 argsToCodebaseInitOptions pathOption =
-  case pathOption of 
+  case pathOption of
     Just (CreateCodebaseWhenMissing path)     -> pure $ Specified (CreateWhenMissing path)
     Just (DontCreateCodebaseWhenMissing path) -> pure $ Specified (DontCreateWhenMissing path)
     Nothing                                   -> do Home <$> getHomeDirectory
 
 codebasePathOptionToPath :: CodebasePathOption -> FilePath
-codebasePathOptionToPath codebasePathOption = 
+codebasePathOptionToPath codebasePathOption =
   case codebasePathOption of
     CreateCodebaseWhenMissing p -> p
     DontCreateCodebaseWhenMissing p -> p

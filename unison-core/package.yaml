@@ -27,6 +27,7 @@ library:
 
 default-extensions:
   - ApplicativeDo
+  - BangPatterns
   - BlockArguments
   - DeriveFunctor
   - DerivingStrategies

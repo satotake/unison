@@ -9,6 +9,7 @@ dependencies:
   - bytestring
   - containers
   - cryptonite
+  - deepseq
   - lens
   - memory
   - safe
@@ -16,3 +17,17 @@ dependencies:
   - text
   - time
   - unliftio
+
+default-extensions:
+  - ApplicativeDo
+  - BlockArguments
+  - DeriveFunctor
+  - DerivingStrategies
+  - DoAndIfThenElse
+  - FlexibleContexts
+  - FlexibleInstances
+  - LambdaCase
+  - MultiParamTypeClasses
+  - ScopedTypeVariables
+  - TupleSections
+  - TypeApplications
