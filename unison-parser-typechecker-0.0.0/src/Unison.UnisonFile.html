@@ -1,0 +1,1133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings   #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE RecordWildCards     #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE ViewPatterns #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE PatternSynonyms #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Unison.UnisonFile</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * UnisonFile</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier">UnisonFile</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier">UnisonFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#allWatches"><span class="hs-identifier">allWatches</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#dataDeclarations"><span class="hs-identifier">dataDeclarations</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#declsToTypeLookup"><span class="hs-identifier">declsToTypeLookup</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#dependencies"><span class="hs-identifier">dependencies</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#effectDeclarations"><span class="hs-identifier">effectDeclarations</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#typecheckingTerm"><span class="hs-identifier">typecheckingTerm</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#watchesOfKind"><span class="hs-identifier">watchesOfKind</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><span class="hs-comment">-- * TypecheckedUnisonFile</span></span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier">TypecheckedUnisonFile</span></a></span><span>   </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#allTerms"><span class="hs-identifier">allTerms</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#dataDeclarations%27"><span class="hs-identifier">dataDeclarations'</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#discardTypes"><span class="hs-identifier">discardTypes</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#effectDeclarations%27"><span class="hs-identifier">effectDeclarations'</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#hashConstructors"><span class="hs-identifier">hashConstructors</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#hashTerms"><span class="hs-identifier">hashTerms</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#indexByReference"><span class="hs-identifier">indexByReference</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#lookupDecl"><span class="hs-identifier">lookupDecl</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#nonEmpty"><span class="hs-identifier">nonEmpty</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#termSignatureExternalLabeledDependencies"><span class="hs-identifier">termSignatureExternalLabeledDependencies</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#topLevelComponents"><span class="hs-identifier">topLevelComponents</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="Unison.UnisonFile.html#typecheckedUnisonFile"><span class="hs-identifier">typecheckedUnisonFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Prelude</span></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">first</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">second</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Map</span></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Set</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Set</span></span><span>
+</span><span id="line-40"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.ABT</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">ABT</span></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Unison.Builtin.Decls.html"><span class="hs-identifier">Unison.Builtin.Decls</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">DD</span></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.ConstructorType</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CT</span></span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.DataDeclaration</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">DataDeclaration</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">EffectDeclaration</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.DataDeclaration</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">DD</span></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Unison.Hashing.V2.Convert.html"><span class="hs-identifier">Unison.Hashing.V2.Convert</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Hashing</span></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.LabeledDependency</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">LabeledDependency</span></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.LabeledDependency</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">LD</span></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Reference</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reference</span></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Reference</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Reference</span></span><span>
+</span><span id="line-50"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Referent</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Referent</span></span><span>
+</span><span id="line-51"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Term</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Term</span></span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Term</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Term</span></span><span>
+</span><span id="line-53"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Type</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Type</span></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Type</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Type</span></span><span>
+</span><span id="line-55"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Unison.Typechecker.TypeLookup.html"><span class="hs-identifier">Unison.Typechecker.TypeLookup</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TL</span></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html"><span class="hs-identifier">Unison.UnisonFile.Type</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier">TypecheckedUnisonFile</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier">UnisonFile</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier">TypecheckedUnisonFile</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier">UnisonFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Util.List</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">List</span></span><span>
+</span><span id="line-58"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.Var</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Var</span></span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unison.WatchKind</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">WatchKind</span></span><span class="hs-special">,</span><span> </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><span class="hs-identifier">TestWatch</span></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span id="local-6989586621681976008"><span id="local-6989586621681976009"><span class="annot"><a href="Unison.UnisonFile.html#dataDeclarations"><span class="hs-identifier hs-type">dataDeclarations</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976009"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976008"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681976009"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">DataDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681976009"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976008"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-61"></span><span id="dataDeclarations"><span class="annot"><span class="annottext">dataDeclarations :: UnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.html#dataDeclarations"><span class="hs-identifier hs-var hs-var">dataDeclarations</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Id, DataDeclaration v a) -&gt; (Reference, DataDeclaration v a))
+-&gt; Map v (Id, DataDeclaration v a)
+-&gt; Map v (Reference, DataDeclaration v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Id -&gt; Reference)
+-&gt; (Id, DataDeclaration v a) -&gt; (Reference, DataDeclaration v a)
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="annot"><span class="annottext">Id -&gt; Reference
+</span><span class="hs-identifier hs-var">Reference.DerivedId</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Map v (Id, DataDeclaration v a)
+ -&gt; Map v (Reference, DataDeclaration v a))
+-&gt; (UnisonFile v a -&gt; Map v (Id, DataDeclaration v a))
+-&gt; UnisonFile v a
+-&gt; Map v (Reference, DataDeclaration v a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+forall v a. UnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#dataDeclarationsId"><span class="hs-identifier hs-var hs-var">dataDeclarationsId</span></a></span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span id="local-6989586621681976006"><span id="local-6989586621681976007"><span class="annot"><a href="Unison.UnisonFile.html#effectDeclarations"><span class="hs-identifier hs-type">effectDeclarations</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976007"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976006"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681976007"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">EffectDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681976007"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976006"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-64"></span><span id="effectDeclarations"><span class="annot"><span class="annottext">effectDeclarations :: UnisonFile v a -&gt; Map v (Reference, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.html#effectDeclarations"><span class="hs-identifier hs-var hs-var">effectDeclarations</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Id, EffectDeclaration v a) -&gt; (Reference, EffectDeclaration v a))
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; Map v (Reference, EffectDeclaration v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Id -&gt; Reference)
+-&gt; (Id, EffectDeclaration v a)
+-&gt; (Reference, EffectDeclaration v a)
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="annot"><span class="annottext">Id -&gt; Reference
+</span><span class="hs-identifier hs-var">Reference.DerivedId</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Map v (Id, EffectDeclaration v a)
+ -&gt; Map v (Reference, EffectDeclaration v a))
+-&gt; (UnisonFile v a -&gt; Map v (Id, EffectDeclaration v a))
+-&gt; UnisonFile v a
+-&gt; Map v (Reference, EffectDeclaration v a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+forall v a. UnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#effectDeclarationsId"><span class="hs-identifier hs-var hs-var">effectDeclarationsId</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span id="local-6989586621681975953"><span id="local-6989586621681975954"><span class="annot"><a href="Unison.UnisonFile.html#watchesOfKind"><span class="hs-identifier hs-type">watchesOfKind</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">WatchKind</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975954"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975953"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975954"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975954"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975953"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-67"></span><span id="watchesOfKind"><span class="annot"><span class="annottext">watchesOfKind :: WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.html#watchesOfKind"><span class="hs-identifier hs-var hs-var">watchesOfKind</span></a></span></span><span> </span><span id="local-6989586621681975952"><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975952"><span class="hs-identifier hs-var">kind</span></a></span></span><span> </span><span id="local-6989586621681975951"><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975951"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)]
+-&gt; WatchKind -&gt; Map WatchKind [(v, Term v a)] -&gt; [(v, Term v a)]
+forall k a. Ord k =&gt; a -&gt; k -&gt; Map k a -&gt; a
+</span><span class="hs-identifier hs-var">Map.findWithDefault</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975952"><span class="hs-identifier hs-var">kind</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+forall v a. UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+</span><a href="Unison.UnisonFile.Type.html#watches"><span class="hs-identifier hs-var hs-var">watches</span></a></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975951"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span id="local-6989586621681976141"><span id="local-6989586621681976142"><span class="annot"><a href="Unison.UnisonFile.html#watchesOfOtherKinds"><span class="hs-identifier hs-type">watchesOfOtherKinds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">WatchKind</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976142"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976141"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681976142"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681976142"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976141"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-70"></span><span id="watchesOfOtherKinds"><span class="annot"><span class="annottext">watchesOfOtherKinds :: WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.html#watchesOfOtherKinds"><span class="hs-identifier hs-var hs-var">watchesOfOtherKinds</span></a></span></span><span> </span><span id="local-6989586621681975947"><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975947"><span class="hs-identifier hs-var">kind</span></a></span></span><span> </span><span id="local-6989586621681975946"><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975946"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-71"></span><span>  </span><span class="annot"><span class="annottext">[[(v, Term v a)]] -&gt; [(v, Term v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)]
+</span><a href="#local-6989586621681975945"><span class="hs-identifier hs-var">ws</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975944"><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975944"><span class="hs-identifier hs-var">k</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975945"><span class="annot"><span class="annottext">[(v, Term v a)]
+</span><a href="#local-6989586621681975945"><span class="hs-identifier hs-var">ws</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map WatchKind [(v, Term v a)] -&gt; [(WatchKind, [(v, Term v a)])]
+forall k a. Map k a -&gt; [(k, a)]
+</span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+forall v a. UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+</span><a href="Unison.UnisonFile.Type.html#watches"><span class="hs-identifier hs-var hs-var">watches</span></a></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975946"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975944"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">WatchKind -&gt; WatchKind -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975947"><span class="hs-identifier hs-var">kind</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span id="local-6989586621681975940"><span id="local-6989586621681975941"><span class="annot"><a href="Unison.UnisonFile.html#allWatches"><span class="hs-identifier hs-type">allWatches</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975941"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975940"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975941"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975941"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975940"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-74"></span><span id="allWatches"><span class="annot"><span class="annottext">allWatches :: UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.html#allWatches"><span class="hs-identifier hs-var hs-var">allWatches</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a)]] -&gt; [(v, Term v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="annot"><span class="annottext">([[(v, Term v a)]] -&gt; [(v, Term v a)])
+-&gt; (UnisonFile v a -&gt; [[(v, Term v a)]])
+-&gt; UnisonFile v a
+-&gt; [(v, Term v a)]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Map WatchKind [(v, Term v a)] -&gt; [[(v, Term v a)]]
+forall k a. Map k a -&gt; [a]
+</span><span class="hs-identifier hs-var">Map.elems</span></span><span> </span><span class="annot"><span class="annottext">(Map WatchKind [(v, Term v a)] -&gt; [[(v, Term v a)]])
+-&gt; (UnisonFile v a -&gt; Map WatchKind [(v, Term v a)])
+-&gt; UnisonFile v a
+-&gt; [[(v, Term v a)]]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+forall v a. UnisonFile v a -&gt; Map WatchKind [(v, Term v a)]
+</span><a href="Unison.UnisonFile.Type.html#watches"><span class="hs-identifier hs-var hs-var">watches</span></a></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span class="hs-comment">-- Converts a file to a single let rec with a body of `()`, for</span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- purposes of typechecking.</span><span>
+</span><span id="line-78"></span><span id="local-6989586621681975937"><span id="local-6989586621681975938"><span class="annot"><a href="Unison.UnisonFile.html#typecheckingTerm"><span class="hs-identifier hs-type">typecheckingTerm</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Var</span></span><span> </span><span class="annot"><a href="#local-6989586621681975938"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621681975937"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975938"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975937"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975938"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975937"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-79"></span><span id="typecheckingTerm"><span class="annot"><span class="annottext">typecheckingTerm :: UnisonFile v a -&gt; Term v a
+</span><a href="Unison.UnisonFile.html#typecheckingTerm"><span class="hs-identifier hs-var hs-var">typecheckingTerm</span></a></span></span><span> </span><span id="local-6989586621681975936"><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975936"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-80"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; [(v, Term v a)] -&gt; Term v a -&gt; Term v a
+forall v a vt.
+(Ord v, Monoid a) =&gt;
+Bool -&gt; [(v, Term' vt v a)] -&gt; Term' vt v a -&gt; Term' vt v a
+</span><span class="hs-identifier hs-var">Term.letRec'</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnisonFile v a -&gt; [(v, Term v a)]
+forall v a. UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.Type.html#terms"><span class="hs-identifier hs-var hs-var">terms</span></a></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975936"><span class="hs-identifier hs-var">uf</span></a></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)] -&gt; [(v, Term v a)] -&gt; [(v, Term v a)]
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)]
+</span><a href="#local-6989586621681975933"><span class="hs-identifier hs-var">testWatches</span></a></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)] -&gt; [(v, Term v a)] -&gt; [(v, Term v a)]
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+forall v a. WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.html#watchesOfOtherKinds"><span class="hs-identifier hs-var">watchesOfOtherKinds</span></a></span><span> </span><span class="annot"><span class="annottext">WatchKind
+forall a. (Eq a, IsString a) =&gt; a
+</span><span class="hs-identifier hs-var">TestWatch</span></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975936"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Term v a -&gt; Term v a) -&gt; Term v a -&gt; Term v a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-81"></span><span>  </span><span class="annot"><span class="annottext">a -&gt; Term v a
+forall v a. Var v =&gt; a -&gt; Term v a
+</span><a href="Unison.Builtin.Decls.html#unitTerm"><span class="hs-identifier hs-var">DD.unitTerm</span></a></span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-83"></span><span>    </span><span class="hs-comment">-- we make sure each test has type Test.Result</span><span>
+</span><span id="line-84"></span><span>    </span><span id="local-6989586621681975931"><span class="annot"><span class="annottext">f :: Term2 vt at ap v at -&gt; Term2 vt at ap v at
+</span><a href="#local-6989586621681975931"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621681975930"><span class="annot"><span class="annottext">Term2 vt at ap v at
+</span><a href="#local-6989586621681975930"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681975929"><span class="annot"><span class="annottext">wa :: at
+</span><a href="#local-6989586621681975929"><span class="hs-identifier hs-var hs-var">wa</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Term2 vt at ap v at -&gt; at
+forall (f :: * -&gt; *) v a. Term f v a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">ABT.annotation</span></span><span> </span><span class="annot"><span class="annottext">Term2 vt at ap v at
+</span><a href="#local-6989586621681975930"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">at -&gt; Term2 vt at ap v at -&gt; Type vt at -&gt; Term2 vt at ap v at
+forall v a vt at ap.
+Ord v =&gt;
+a -&gt; Term2 vt at ap v a -&gt; Type vt at -&gt; Term2 vt at ap v a
+</span><span class="hs-identifier hs-var">Term.ann</span></span><span> </span><span class="annot"><span class="annottext">at
+</span><a href="#local-6989586621681975929"><span class="hs-identifier hs-var">wa</span></a></span><span> </span><span class="annot"><span class="annottext">Term2 vt at ap v at
+</span><a href="#local-6989586621681975930"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">at -&gt; Type vt at
+forall v a. Ord v =&gt; a -&gt; Type v a
+</span><a href="Unison.Builtin.Decls.html#testResultType"><span class="hs-identifier hs-var">DD.testResultType</span></a></span><span> </span><span class="annot"><span class="annottext">at
+</span><a href="#local-6989586621681975929"><span class="hs-identifier hs-var">wa</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-85"></span><span>    </span><span id="local-6989586621681975933"><span class="annot"><span class="annottext">testWatches :: [(v, Term v a)]
+</span><a href="#local-6989586621681975933"><span class="hs-identifier hs-var hs-var">testWatches</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((v, Term v a) -&gt; (v, Term v a))
+-&gt; [(v, Term v a)] -&gt; [(v, Term v a)]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Term v a -&gt; Term v a) -&gt; (v, Term v a) -&gt; (v, Term v a)
+forall (p :: * -&gt; * -&gt; *) b c a.
+Bifunctor p =&gt;
+(b -&gt; c) -&gt; p a b -&gt; p a c
+</span><span class="hs-identifier hs-var">second</span></span><span> </span><span class="annot"><span class="annottext">Term v a -&gt; Term v a
+forall v vt at ap.
+(Ord v, Ord vt) =&gt;
+Term2 vt at ap v at -&gt; Term2 vt at ap v at
+</span><a href="#local-6989586621681975931"><span class="hs-identifier hs-var">f</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(v, Term v a)] -&gt; [(v, Term v a)])
+-&gt; [(v, Term v a)] -&gt; [(v, Term v a)]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+forall v a. WatchKind -&gt; UnisonFile v a -&gt; [(v, Term v a)]
+</span><a href="Unison.UnisonFile.html#watchesOfKind"><span class="hs-identifier hs-var">watchesOfKind</span></a></span><span> </span><span class="annot"><span class="annottext">WatchKind
+forall a. (Eq a, IsString a) =&gt; a
+</span><span class="hs-identifier hs-var">TestWatch</span></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975936"><span class="hs-identifier hs-var">uf</span></a></span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span class="hs-comment">-- backwards compatibility with the old data type</span><span>
+</span><span id="line-88"></span><span id="local-6989586621681976000"><span id="local-6989586621681976001"><span class="annot"><a href="Unison.UnisonFile.html#dataDeclarations%27"><span class="hs-identifier hs-type">dataDeclarations'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976001"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976000"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681976001"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">DataDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681976001"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976000"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-89"></span><span id="dataDeclarations%27"><span class="annot"><span class="annottext">dataDeclarations' :: TypecheckedUnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.html#dataDeclarations%27"><span class="hs-identifier hs-var hs-var">dataDeclarations'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Id, DataDeclaration v a) -&gt; (Reference, DataDeclaration v a))
+-&gt; Map v (Id, DataDeclaration v a)
+-&gt; Map v (Reference, DataDeclaration v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Id -&gt; Reference)
+-&gt; (Id, DataDeclaration v a) -&gt; (Reference, DataDeclaration v a)
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="annot"><span class="annottext">Id -&gt; Reference
+</span><span class="hs-identifier hs-var">Reference.DerivedId</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Map v (Id, DataDeclaration v a)
+ -&gt; Map v (Reference, DataDeclaration v a))
+-&gt; (TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a))
+-&gt; TypecheckedUnisonFile v a
+-&gt; Map v (Reference, DataDeclaration v a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#dataDeclarationsId%27"><span class="hs-identifier hs-var hs-var">dataDeclarationsId'</span></a></span><span>
+</span><span id="line-90"></span><span id="local-6989586621681975998"><span id="local-6989586621681975999"><span class="annot"><a href="Unison.UnisonFile.html#effectDeclarations%27"><span class="hs-identifier hs-type">effectDeclarations'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975999"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975998"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975999"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">EffectDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681975999"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975998"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-91"></span><span id="effectDeclarations%27"><span class="annot"><span class="annottext">effectDeclarations' :: TypecheckedUnisonFile v a
+-&gt; Map v (Reference, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.html#effectDeclarations%27"><span class="hs-identifier hs-var hs-var">effectDeclarations'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Id, EffectDeclaration v a) -&gt; (Reference, EffectDeclaration v a))
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; Map v (Reference, EffectDeclaration v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Id -&gt; Reference)
+-&gt; (Id, EffectDeclaration v a)
+-&gt; (Reference, EffectDeclaration v a)
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="annot"><span class="annottext">Id -&gt; Reference
+</span><span class="hs-identifier hs-var">Reference.DerivedId</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Map v (Id, EffectDeclaration v a)
+ -&gt; Map v (Reference, EffectDeclaration v a))
+-&gt; (TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a))
+-&gt; TypecheckedUnisonFile v a
+-&gt; Map v (Reference, EffectDeclaration v a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#effectDeclarationsId%27"><span class="hs-identifier hs-var hs-var">effectDeclarationsId'</span></a></span><span>
+</span><span id="line-92"></span><span id="local-6989586621681976054"><span id="local-6989586621681976055"><span class="annot"><a href="Unison.UnisonFile.html#hashTerms"><span class="hs-identifier hs-type">hashTerms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976055"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976054"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681976055"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">WatchKind</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681976055"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976054"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681976055"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681976054"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-93"></span><span id="hashTerms"><span class="annot"><span class="annottext">hashTerms :: TypecheckedUnisonFile v a
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+</span><a href="Unison.UnisonFile.html#hashTerms"><span class="hs-identifier hs-var hs-var">hashTerms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Id, Maybe WatchKind, Term v a, Type v a)
+ -&gt; (Reference, Maybe WatchKind, Term v a, Type v a))
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ASetter
+  (Id, Maybe WatchKind, Term v a, Type v a)
+  (Reference, Maybe WatchKind, Term v a, Type v a)
+  Id
+  Reference
+-&gt; (Id -&gt; Reference)
+-&gt; (Id, Maybe WatchKind, Term v a, Type v a)
+-&gt; (Reference, Maybe WatchKind, Term v a, Type v a)
+forall s t a b. ASetter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">over</span></span><span> </span><span class="annot"><span class="annottext">ASetter
+  (Id, Maybe WatchKind, Term v a, Type v a)
+  (Reference, Maybe WatchKind, Term v a, Type v a)
+  Id
+  Reference
+forall s t a b. Field1 s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">_1</span></span><span> </span><span class="annot"><span class="annottext">Id -&gt; Reference
+</span><span class="hs-identifier hs-var">Reference.DerivedId</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Map v (Id, Maybe WatchKind, Term v a, Type v a)
+ -&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a))
+-&gt; (TypecheckedUnisonFile v a
+    -&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a))
+-&gt; TypecheckedUnisonFile v a
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+forall v a.
+TypecheckedUnisonFile v a
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+</span><a href="Unison.UnisonFile.Type.html#hashTermsId"><span class="hs-identifier hs-var hs-var">hashTermsId</span></a></span><span>
+</span><span id="line-94"></span><span>
+</span><span id="line-95"></span><span class="annot"><a href="Unison.UnisonFile.html#typecheckedUnisonFile"><span class="hs-identifier hs-type">typecheckedUnisonFile</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681975920"><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span id="local-6989586621681975919"><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Var</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span>
+</span><span id="line-96"></span><span>                      </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference.Id</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">DataDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-97"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference.Id</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">EffectDeclaration</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">]</span><span>
+</span><span id="line-99"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">WatchKind</span></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-100"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-101"></span><span id="typecheckedUnisonFile"><span class="annot"><span class="annottext">typecheckedUnisonFile :: Map v (Id, DataDeclaration v a)
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; [[(v, Term v a, Type v a)]]
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+-&gt; TypecheckedUnisonFile v a
+</span><a href="Unison.UnisonFile.html#typecheckedUnisonFile"><span class="hs-identifier hs-var hs-var">typecheckedUnisonFile</span></a></span></span><span> </span><span id="local-6989586621681975918"><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+</span><a href="#local-6989586621681975918"><span class="hs-identifier hs-var">datas</span></a></span></span><span> </span><span id="local-6989586621681975917"><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a)
+</span><a href="#local-6989586621681975917"><span class="hs-identifier hs-var">effects</span></a></span></span><span> </span><span id="local-6989586621681975916"><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975916"><span class="hs-identifier hs-var">tlcs</span></a></span></span><span> </span><span id="local-6989586621681975915"><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975915"><span class="hs-identifier hs-var">watches</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-102"></span><span>  </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; [[(v, Term v a, Type v a)]]
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+-&gt; TypecheckedUnisonFile v a
+forall v a.
+Map v (Id, DataDeclaration v a)
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; [[(v, Term v a, Type v a)]]
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+-&gt; TypecheckedUnisonFile v a
+</span><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFileId"><span class="hs-identifier hs-var">TypecheckedUnisonFileId</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+</span><a href="#local-6989586621681975918"><span class="hs-identifier hs-var">datas</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a)
+</span><a href="#local-6989586621681975917"><span class="hs-identifier hs-var">effects</span></a></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975916"><span class="hs-identifier hs-var">tlcs</span></a></span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975915"><span class="hs-identifier hs-var">watches</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Id, Maybe WatchKind, Term v a, Type v a)
+</span><a href="#local-6989586621681975913"><span class="hs-identifier hs-var">hashImpl</span></a></span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-104"></span><span>  </span><span id="local-6989586621681975913"><span class="annot"><span class="annottext">hashImpl :: Map v (Id, Maybe WatchKind, Term v a, Type v a)
+</span><a href="#local-6989586621681975913"><span class="hs-identifier hs-var hs-var">hashImpl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span>
+</span><span id="line-105"></span><span>    </span><span class="hs-comment">-- |includes watches</span><span>
+</span><span id="line-106"></span><span>    </span><span class="annot"><a href="#local-6989586621681975912"><span class="hs-identifier hs-type">allTerms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-107"></span><span>    </span><span id="local-6989586621681975912"><span class="annot"><span class="annottext">allTerms :: [(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975912"><span class="hs-identifier hs-var hs-var">allTerms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975916"><span class="hs-identifier hs-var">tlcs</span></a></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+-&gt; [(v, Term v a, Type v a)] -&gt; [(v, Term v a, Type v a)]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(WatchKind, [(v, Term v a, Type v a)]) -&gt; [(v, Term v a, Type v a)]
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span> </span><span class="annot"><span class="annottext">((WatchKind, [(v, Term v a, Type v a)])
+ -&gt; [(v, Term v a, Type v a)])
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+-&gt; [[(v, Term v a, Type v a)]]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975915"><span class="hs-identifier hs-var">watches</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>    </span><span class="annot"><a href="#local-6989586621681975910"><span class="hs-identifier hs-type">types</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975919"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-109"></span><span>    </span><span id="local-6989586621681975910"><span class="annot"><span class="annottext">types :: Map v (Type v a)
+</span><a href="#local-6989586621681975910"><span class="hs-identifier hs-var hs-var">types</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(v, Type v a)] -&gt; Map v (Type v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975908"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975907"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975908"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975908"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Term v a
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span id="local-6989586621681975907"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975907"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975912"><span class="hs-identifier hs-var">allTerms</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-110"></span><span>    </span><span class="annot"><a href="#local-6989586621681975906"><span class="hs-identifier hs-type">watchKinds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975920"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">WatchKind</span></span><span class="hs-special">)</span><span>
+</span><span id="line-111"></span><span>    </span><span id="local-6989586621681975906"><span class="annot"><span class="annottext">watchKinds :: Map v (Maybe WatchKind)
+</span><a href="#local-6989586621681975906"><span class="hs-identifier hs-var hs-var">watchKinds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(v, Maybe WatchKind)] -&gt; Map v (Maybe WatchKind)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="annot"><span class="annottext">([(v, Maybe WatchKind)] -&gt; Map v (Maybe WatchKind))
+-&gt; [(v, Maybe WatchKind)] -&gt; Map v (Maybe WatchKind)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-112"></span><span>      </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975905"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Maybe WatchKind
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975905"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975905"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975904"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975904"><span class="hs-identifier hs-var">_e</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975903"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975903"><span class="hs-identifier hs-var">_t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975916"><span class="hs-identifier hs-var">tlcs</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-113"></span><span>      </span><span class="annot"><span class="annottext">[(v, Maybe WatchKind)]
+-&gt; [(v, Maybe WatchKind)] -&gt; [(v, Maybe WatchKind)]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975902"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">WatchKind -&gt; Maybe WatchKind
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975901"><span class="hs-identifier hs-var">wk</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975901"><span class="annot"><span class="annottext">WatchKind
+</span><a href="#local-6989586621681975901"><span class="hs-identifier hs-var">wk</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975900"><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975900"><span class="hs-identifier hs-var">wkTerms</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975915"><span class="hs-identifier hs-var">watches</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975902"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975902"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975899"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975899"><span class="hs-identifier hs-var">_e</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975898"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975898"><span class="hs-identifier hs-var">_t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975900"><span class="hs-identifier hs-var">wkTerms</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-114"></span><span>    </span><span class="hs-comment">-- good spot incorporate type of term into its hash, if not already present as an annotation (#2276)</span><span>
+</span><span id="line-115"></span><span>    </span><span id="local-6989586621681975897"><span class="annot"><span class="annottext">hcs :: Map v (Id, Term v a)
+</span><a href="#local-6989586621681975897"><span class="hs-identifier hs-var hs-var">hcs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map v (Term v a) -&gt; Map v (Id, Term v a)
+forall v a. Var v =&gt; Map v (Term v a) -&gt; Map v (Id, Term v a)
+</span><a href="Unison.Hashing.V2.Convert.html#hashTermComponents"><span class="hs-identifier hs-var">Hashing.hashTermComponents</span></a></span><span> </span><span class="annot"><span class="annottext">(Map v (Term v a) -&gt; Map v (Id, Term v a))
+-&gt; Map v (Term v a) -&gt; Map v (Id, Term v a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)] -&gt; Map v (Term v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="annot"><span class="annottext">([(v, Term v a)] -&gt; Map v (Term v a))
+-&gt; [(v, Term v a)] -&gt; Map v (Term v a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621681975895"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975895"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975894"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975894"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975893"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975893"><span class="hs-identifier hs-var">_t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975895"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975894"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((v, Term v a, Type v a) -&gt; (v, Term v a))
+-&gt; [(v, Term v a, Type v a)] -&gt; [(v, Term v a)]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975912"><span class="hs-identifier hs-var">allTerms</span></a></span><span>
+</span><span id="line-116"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[(v, (Id, Maybe WatchKind, Term v a, Type v a))]
+-&gt; Map v (Id, Maybe WatchKind, Term v a, Type v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span>
+</span><span id="line-117"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975892"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975891"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe WatchKind
+</span><a href="#local-6989586621681975890"><span class="hs-identifier hs-var">wk</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975889"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975888"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-118"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975892"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975892"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975891"><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975891"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975889"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975889"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map v (Id, Term v a) -&gt; [(v, (Id, Term v a))]
+forall k a. Map k a -&gt; [(k, a)]
+</span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="annot"><span class="annottext">Map v (Id, Term v a)
+</span><a href="#local-6989586621681975897"><span class="hs-identifier hs-var">hcs</span></a></span><span>
+</span><span id="line-119"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621681975888"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975888"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">v -&gt; Map v (Type v a) -&gt; Maybe (Type v a)
+forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975892"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Type v a)
+</span><a href="#local-6989586621681975910"><span class="hs-identifier hs-var">types</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-120"></span><span>          </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975890"><span class="annot"><span class="annottext">Maybe WatchKind
+</span><a href="#local-6989586621681975890"><span class="hs-identifier hs-var">wk</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Maybe WatchKind -&gt; v -&gt; Map v (Maybe WatchKind) -&gt; Maybe WatchKind
+forall k a. Ord k =&gt; a -&gt; k -&gt; Map k a -&gt; a
+</span><span class="hs-identifier hs-var">Map.findWithDefault</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">WatchKind -&gt; Maybe WatchKind
+forall a. HasCallStack =&gt; WatchKind -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(WatchKind -&gt; Maybe WatchKind) -&gt; WatchKind -&gt; Maybe WatchKind
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">v -&gt; WatchKind
+forall a. Show a =&gt; a -&gt; WatchKind
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975892"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">WatchKind -&gt; WatchKind -&gt; WatchKind
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">WatchKind
+</span><span class="hs-string">&quot; missing from watchKinds&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975892"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Maybe WatchKind)
+</span><a href="#local-6989586621681975906"><span class="hs-identifier hs-var">watchKinds</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span id="local-6989586621681975883"><span id="local-6989586621681975884"><span class="annot"><a href="Unison.UnisonFile.html#lookupDecl"><span class="hs-identifier hs-type">lookupDecl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621681975884"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681975884"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975884"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975883"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-123"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference.Id</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">DD.Decl</span></span><span> </span><span class="annot"><a href="#local-6989586621681975884"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975883"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-124"></span><span id="lookupDecl"><span class="annot"><span class="annottext">lookupDecl :: v -&gt; TypecheckedUnisonFile v a -&gt; Maybe (Id, Decl v a)
+</span><a href="Unison.UnisonFile.html#lookupDecl"><span class="hs-identifier hs-var hs-var">lookupDecl</span></a></span></span><span> </span><span id="local-6989586621681975882"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975882"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621681975881"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975881"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-125"></span><span>  </span><span class="annot"><span class="annottext">ASetter
+  (Id, DataDeclaration v a)
+  (Id, Decl v a)
+  (DataDeclaration v a)
+  (Decl v a)
+-&gt; (DataDeclaration v a -&gt; Decl v a)
+-&gt; (Id, DataDeclaration v a)
+-&gt; (Id, Decl v a)
+forall s t a b. ASetter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">over</span></span><span> </span><span class="annot"><span class="annottext">ASetter
+  (Id, DataDeclaration v a)
+  (Id, Decl v a)
+  (DataDeclaration v a)
+  (Decl v a)
+forall s t a b. Field2 s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">_2</span></span><span> </span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; Decl v a
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">((Id, DataDeclaration v a) -&gt; (Id, Decl v a))
+-&gt; Maybe (Id, DataDeclaration v a) -&gt; Maybe (Id, Decl v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+-&gt; Map v (Id, DataDeclaration v a)
+-&gt; Maybe (Id, DataDeclaration v a)
+forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975882"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#dataDeclarationsId%27"><span class="hs-identifier hs-var hs-var">dataDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975881"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe (Id, Decl v a)
+-&gt; Maybe (Id, Decl v a) -&gt; Maybe (Id, Decl v a)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">&lt;|&gt;</span></span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><span class="annottext">ASetter
+  (Id, EffectDeclaration v a)
+  (Id, Decl v a)
+  (EffectDeclaration v a)
+  (Decl v a)
+-&gt; (EffectDeclaration v a -&gt; Decl v a)
+-&gt; (Id, EffectDeclaration v a)
+-&gt; (Id, Decl v a)
+forall s t a b. ASetter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">over</span></span><span> </span><span class="annot"><span class="annottext">ASetter
+  (Id, EffectDeclaration v a)
+  (Id, Decl v a)
+  (EffectDeclaration v a)
+  (Decl v a)
+forall s t a b. Field2 s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">_2</span></span><span> </span><span class="annot"><span class="annottext">EffectDeclaration v a -&gt; Decl v a
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span>  </span><span class="annot"><span class="annottext">((Id, EffectDeclaration v a) -&gt; (Id, Decl v a))
+-&gt; Maybe (Id, EffectDeclaration v a) -&gt; Maybe (Id, Decl v a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; Maybe (Id, EffectDeclaration v a)
+forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975882"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#effectDeclarationsId%27"><span class="hs-identifier hs-var hs-var">effectDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975881"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>
+</span><span id="line-128"></span><span id="local-6989586621681975877"><span id="local-6989586621681975878"><span class="annot"><a href="Unison.UnisonFile.html#indexByReference"><span class="hs-identifier hs-type">indexByReference</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975878"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975877"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-129"></span><span>                 </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reference.Id</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975878"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975878"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reference.Id</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">DD.Decl</span></span><span> </span><span class="annot"><a href="#local-6989586621681975878"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-130"></span><span id="indexByReference"><span class="annot"><span class="annottext">indexByReference :: TypecheckedUnisonFile v a
+-&gt; (Map Id (Term v a, Type v a), Map Id (Decl v a))
+</span><a href="Unison.UnisonFile.html#indexByReference"><span class="hs-identifier hs-var hs-var">indexByReference</span></a></span></span><span> </span><span id="local-6989586621681975876"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975876"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map Id (Term v a, Type v a)
+</span><a href="#local-6989586621681975875"><span class="hs-identifier hs-var">tms</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Map Id (Decl v a)
+</span><a href="#local-6989586621681975874"><span class="hs-identifier hs-var">tys</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621681975874"><span class="annot"><span class="annottext">tys :: Map Id (Decl v a)
+</span><a href="#local-6989586621681975874"><span class="hs-identifier hs-var hs-var">tys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Id, Decl v a)] -&gt; Map Id (Decl v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ASetter
+  (Id, DataDeclaration v a)
+  (Id, Decl v a)
+  (DataDeclaration v a)
+  (Decl v a)
+-&gt; (DataDeclaration v a -&gt; Decl v a)
+-&gt; (Id, DataDeclaration v a)
+-&gt; (Id, Decl v a)
+forall s t a b. ASetter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">over</span></span><span> </span><span class="annot"><span class="annottext">ASetter
+  (Id, DataDeclaration v a)
+  (Id, Decl v a)
+  (DataDeclaration v a)
+  (Decl v a)
+forall s t a b. Field2 s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">_2</span></span><span> </span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; Decl v a
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">((Id, DataDeclaration v a) -&gt; (Id, Decl v a))
+-&gt; [(Id, DataDeclaration v a)] -&gt; [(Id, Decl v a)]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a) -&gt; [(Id, DataDeclaration v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#dataDeclarationsId%27"><span class="hs-identifier hs-var hs-var">dataDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975876"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map Id (Decl v a) -&gt; Map Id (Decl v a) -&gt; Map Id (Decl v a)
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span>
+</span><span id="line-133"></span><span>          </span><span class="annot"><span class="annottext">[(Id, Decl v a)] -&gt; Map Id (Decl v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ASetter
+  (Id, EffectDeclaration v a)
+  (Id, Decl v a)
+  (EffectDeclaration v a)
+  (Decl v a)
+-&gt; (EffectDeclaration v a -&gt; Decl v a)
+-&gt; (Id, EffectDeclaration v a)
+-&gt; (Id, Decl v a)
+forall s t a b. ASetter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">over</span></span><span> </span><span class="annot"><span class="annottext">ASetter
+  (Id, EffectDeclaration v a)
+  (Id, Decl v a)
+  (EffectDeclaration v a)
+  (Decl v a)
+forall s t a b. Field2 s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">_2</span></span><span> </span><span class="annot"><span class="annottext">EffectDeclaration v a -&gt; Decl v a
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">((Id, EffectDeclaration v a) -&gt; (Id, Decl v a))
+-&gt; [(Id, EffectDeclaration v a)] -&gt; [(Id, Decl v a)]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a) -&gt; [(Id, EffectDeclaration v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#effectDeclarationsId%27"><span class="hs-identifier hs-var hs-var">effectDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975876"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>    </span><span id="local-6989586621681975875"><span class="annot"><span class="annottext">tms :: Map Id (Term v a, Type v a)
+</span><a href="#local-6989586621681975875"><span class="hs-identifier hs-var hs-var">tms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Id, (Term v a, Type v a))] -&gt; Map Id (Term v a, Type v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">[</span><span>
+</span><span id="line-135"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975872"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975871"><span class="hs-identifier hs-var">tm</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975870"><span class="hs-identifier hs-var">ty</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference.DerivedId</span></span><span> </span><span id="local-6989586621681975872"><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975872"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975869"><span class="annot"><span class="annottext">Maybe WatchKind
+</span><a href="#local-6989586621681975869"><span class="hs-identifier hs-var">_wk</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975871"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975871"><span class="hs-identifier hs-var">tm</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975870"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975870"><span class="hs-identifier hs-var">ty</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; [(Reference, Maybe WatchKind, Term v a, Type v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+forall v a.
+TypecheckedUnisonFile v a
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+</span><a href="Unison.UnisonFile.html#hashTerms"><span class="hs-identifier hs-var">hashTerms</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975876"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-136"></span><span>
+</span><span id="line-137"></span><span id="local-6989586621681975867"><span id="local-6989586621681975868"><span class="annot"><a href="Unison.UnisonFile.html#allTerms"><span class="hs-identifier hs-type">allTerms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621681975868"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975868"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975867"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975868"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975868"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975867"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-138"></span><span id="allTerms"><span class="annot"><span class="annottext">allTerms :: TypecheckedUnisonFile v a -&gt; Map v (Term v a)
+</span><a href="Unison.UnisonFile.html#allTerms"><span class="hs-identifier hs-var hs-var">allTerms</span></a></span></span><span> </span><span id="local-6989586621681975866"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975866"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-139"></span><span>  </span><span class="annot"><span class="annottext">[(v, Term v a)] -&gt; Map v (Term v a)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975865"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975864"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975865"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975865"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975864"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975864"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type v a
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="annot"><span class="annottext">([[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)])
+-&gt; [[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+forall v a.
+TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+</span><a href="Unison.UnisonFile.Type.html#topLevelComponents%27"><span class="hs-identifier hs-var hs-var">topLevelComponents'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975866"><span class="hs-identifier hs-var">uf</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-140"></span><span>
+</span><span id="line-141"></span><span class="hs-comment">-- |the top level components (no watches) plus test watches.</span><span>
+</span><span id="line-142"></span><span id="local-6989586621681975861"><span id="local-6989586621681975862"><span class="annot"><a href="Unison.UnisonFile.html#topLevelComponents"><span class="hs-identifier hs-type">topLevelComponents</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975862"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975861"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-143"></span><span>                   </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681975862"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Term</span></span><span> </span><span class="annot"><a href="#local-6989586621681975862"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975861"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="annot"><a href="#local-6989586621681975862"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975861"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-144"></span><span id="topLevelComponents"><span class="annot"><span class="annottext">topLevelComponents :: TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+</span><a href="Unison.UnisonFile.html#topLevelComponents"><span class="hs-identifier hs-var hs-var">topLevelComponents</span></a></span></span><span> </span><span id="local-6989586621681975860"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975860"><span class="hs-identifier hs-var">file</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-145"></span><span>  </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+forall v a.
+TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+</span><a href="Unison.UnisonFile.Type.html#topLevelComponents%27"><span class="hs-identifier hs-var hs-var">topLevelComponents'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975860"><span class="hs-identifier hs-var">file</span></a></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+-&gt; [[(v, Term v a, Type v a)]] -&gt; [[(v, Term v a, Type v a)]]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975859"><span class="hs-identifier hs-var">comp</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">WatchKind
+</span><span class="hs-identifier hs-var">TestWatch</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975859"><span class="annot"><span class="annottext">[(v, Term v a, Type v a)]
+</span><a href="#local-6989586621681975859"><span class="hs-identifier hs-var">comp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+forall v a.
+TypecheckedUnisonFile v a
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="Unison.UnisonFile.Type.html#watchComponents"><span class="hs-identifier hs-var hs-var">watchComponents</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975860"><span class="hs-identifier hs-var">file</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-146"></span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- External type references that appear in the types of the file's terms</span><span>
+</span><span id="line-148"></span><span id="local-6989586621681975856"><span id="local-6989586621681975857"><span class="annot"><a href="Unison.UnisonFile.html#termSignatureExternalLabeledDependencies"><span class="hs-identifier hs-type">termSignatureExternalLabeledDependencies</span></a></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621681975857"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975857"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975856"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Set</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LabeledDependency</span></span></span></span><span>
+</span><span id="line-150"></span><span id="termSignatureExternalLabeledDependencies"><span class="annot"><span class="annottext">termSignatureExternalLabeledDependencies :: TypecheckedUnisonFile v a -&gt; Set LabeledDependency
+</span><a href="Unison.UnisonFile.html#termSignatureExternalLabeledDependencies"><span class="hs-identifier hs-var hs-var">termSignatureExternalLabeledDependencies</span></a></span></span><span>
+</span><span id="line-151"></span><span>    </span><span class="hs-special">(</span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span id="local-6989586621681975855"><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+</span><a href="#local-6989586621681975855"><span class="hs-identifier hs-var">dataDeclarations'</span></a></span></span><span> </span><span id="local-6989586621681975854"><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+</span><a href="#local-6989586621681975854"><span class="hs-identifier hs-var">effectDeclarations'</span></a></span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621681975853"><span class="annot"><span class="annottext">Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+</span><a href="#local-6989586621681975853"><span class="hs-identifier hs-var">hashTerms</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-152"></span><span>  </span><span class="annot"><span class="annottext">Set LabeledDependency
+-&gt; Set LabeledDependency -&gt; Set LabeledDependency
+forall a. Ord a =&gt; Set a -&gt; Set a -&gt; Set a
+</span><span class="hs-identifier hs-var">Set.difference</span></span><span>
+</span><span id="line-153"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Reference -&gt; LabeledDependency)
+-&gt; Set Reference -&gt; Set LabeledDependency
+forall b a. Ord b =&gt; (a -&gt; b) -&gt; Set a -&gt; Set b
+</span><span class="hs-identifier hs-var">Set.map</span></span><span> </span><span class="annot"><span class="annottext">Reference -&gt; LabeledDependency
+</span><span class="hs-identifier hs-var">LD.typeRef</span></span><span>
+</span><span id="line-154"></span><span>      </span><span class="annot"><span class="annottext">(Set Reference -&gt; Set LabeledDependency)
+-&gt; (Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+    -&gt; Set Reference)
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; Set LabeledDependency
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Type v a -&gt; Set Reference) -&gt; [Type v a] -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="annot"><span class="annottext">Type v a -&gt; Set Reference
+forall v a. Ord v =&gt; Type v a -&gt; Set Reference
+</span><span class="hs-identifier hs-var">Type.dependencies</span></span><span>
+</span><span id="line-155"></span><span>      </span><span class="annot"><span class="annottext">([Type v a] -&gt; Set Reference)
+-&gt; (Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+    -&gt; [Type v a])
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; Set Reference
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">((Reference, Maybe WatchKind, Term v a, Type v a) -&gt; Type v a)
+-&gt; [(Reference, Maybe WatchKind, Term v a, Type v a)] -&gt; [Type v a]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621681975847"><span class="annot"><span class="annottext">Reference
+</span><a href="#local-6989586621681975847"><span class="hs-identifier hs-var">_r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975846"><span class="annot"><span class="annottext">Maybe WatchKind
+</span><a href="#local-6989586621681975846"><span class="hs-identifier hs-var">_wk</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975845"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975845"><span class="hs-identifier hs-var">_e</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975844"><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975844"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type v a
+</span><a href="#local-6989586621681975844"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-156"></span><span>      </span><span class="annot"><span class="annottext">([(Reference, Maybe WatchKind, Term v a, Type v a)] -&gt; [Type v a])
+-&gt; (Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+    -&gt; [(Reference, Maybe WatchKind, Term v a, Type v a)])
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; [Type v a]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; [(Reference, Maybe WatchKind, Term v a, Type v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span>
+</span><span id="line-157"></span><span>      </span><span class="annot"><span class="annottext">(Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+ -&gt; Set LabeledDependency)
+-&gt; Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+-&gt; Set LabeledDependency
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Map v (Reference, Maybe WatchKind, Term v a, Type v a)
+</span><a href="#local-6989586621681975853"><span class="hs-identifier hs-var">hashTerms</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-158"></span><span>    </span><span class="hs-comment">-- exclude any references that are defined in this file</span><span>
+</span><span id="line-159"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[LabeledDependency] -&gt; Set LabeledDependency
+forall a. Ord a =&gt; [a] -&gt; Set a
+</span><span class="hs-identifier hs-var">Set.fromList</span></span><span> </span><span class="annot"><span class="annottext">([LabeledDependency] -&gt; Set LabeledDependency)
+-&gt; [LabeledDependency] -&gt; Set LabeledDependency
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-160"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Reference, DataDeclaration v a) -&gt; LabeledDependency)
+-&gt; [(Reference, DataDeclaration v a)] -&gt; [LabeledDependency]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Reference -&gt; LabeledDependency
+</span><span class="hs-identifier hs-var">LD.typeRef</span></span><span> </span><span class="annot"><span class="annottext">(Reference -&gt; LabeledDependency)
+-&gt; ((Reference, DataDeclaration v a) -&gt; Reference)
+-&gt; (Reference, DataDeclaration v a)
+-&gt; LabeledDependency
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Reference, DataDeclaration v a) -&gt; Reference
+forall a b. (a, b) -&gt; a
+</span><span class="hs-identifier hs-var">fst</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(Reference, DataDeclaration v a)] -&gt; [LabeledDependency])
+-&gt; (Map v (Reference, DataDeclaration v a)
+    -&gt; [(Reference, DataDeclaration v a)])
+-&gt; Map v (Reference, DataDeclaration v a)
+-&gt; [LabeledDependency]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+-&gt; [(Reference, DataDeclaration v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+</span><a href="#local-6989586621681975855"><span class="hs-identifier hs-var">dataDeclarations'</span></a></span><span> </span><span class="annot"><span class="annottext">[LabeledDependency] -&gt; [LabeledDependency] -&gt; [LabeledDependency]
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span>
+</span><span id="line-161"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Reference, EffectDeclaration v a) -&gt; LabeledDependency)
+-&gt; [(Reference, EffectDeclaration v a)] -&gt; [LabeledDependency]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Reference -&gt; LabeledDependency
+</span><span class="hs-identifier hs-var">LD.typeRef</span></span><span> </span><span class="annot"><span class="annottext">(Reference -&gt; LabeledDependency)
+-&gt; ((Reference, EffectDeclaration v a) -&gt; Reference)
+-&gt; (Reference, EffectDeclaration v a)
+-&gt; LabeledDependency
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Reference, EffectDeclaration v a) -&gt; Reference
+forall a b. (a, b) -&gt; a
+</span><span class="hs-identifier hs-var">fst</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(Reference, EffectDeclaration v a)] -&gt; [LabeledDependency])
+-&gt; (Map v (Reference, EffectDeclaration v a)
+    -&gt; [(Reference, EffectDeclaration v a)])
+-&gt; Map v (Reference, EffectDeclaration v a)
+-&gt; [LabeledDependency]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+-&gt; [(Reference, EffectDeclaration v a)]
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
+</span><span class="hs-identifier hs-var">toList</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+</span><a href="#local-6989586621681975854"><span class="hs-identifier hs-var">effectDeclarations'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span class="hs-comment">-- Returns the dependencies of the `UnisonFile` input. Needed so we can</span><span>
+</span><span id="line-164"></span><span class="hs-comment">-- load information about these dependencies before starting typechecking.</span><span>
+</span><span id="line-165"></span><span id="local-6989586621681975841"><span id="local-6989586621681975842"><span class="annot"><a href="Unison.UnisonFile.html#dependencies"><span class="hs-identifier hs-type">dependencies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621681975842"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Var</span></span><span> </span><span class="annot"><a href="#local-6989586621681975841"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975841"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975842"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Set</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reference</span></span></span></span><span>
+</span><span id="line-166"></span><span id="dependencies"><span class="annot"><span class="annottext">dependencies :: UnisonFile v a -&gt; Set Reference
+</span><a href="Unison.UnisonFile.html#dependencies"><span class="hs-identifier hs-var hs-var">dependencies</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span id="local-6989586621681975840"><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+</span><a href="#local-6989586621681975840"><span class="hs-identifier hs-var">ds</span></a></span></span><span> </span><span id="local-6989586621681975839"><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+</span><a href="#local-6989586621681975839"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span id="local-6989586621681975838"><span class="annot"><span class="annottext">[(v, Term v a)]
+</span><a href="#local-6989586621681975838"><span class="hs-identifier hs-var">ts</span></a></span></span><span> </span><span id="local-6989586621681975837"><span class="annot"><span class="annottext">Map WatchKind [(v, Term v a)]
+</span><a href="#local-6989586621681975837"><span class="hs-identifier hs-var">ws</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-167"></span><span>  </span><span class="annot"><span class="annottext">((Reference, DataDeclaration v a) -&gt; Set Reference)
+-&gt; Map v (Reference, DataDeclaration v a) -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; Set Reference
+forall v a. Ord v =&gt; DataDeclaration v a -&gt; Set Reference
+</span><span class="hs-identifier hs-var">DD.dependencies</span></span><span> </span><span class="annot"><span class="annottext">(DataDeclaration v a -&gt; Set Reference)
+-&gt; ((Reference, DataDeclaration v a) -&gt; DataDeclaration v a)
+-&gt; (Reference, DataDeclaration v a)
+-&gt; Set Reference
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Reference, DataDeclaration v a) -&gt; DataDeclaration v a
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+</span><a href="#local-6989586621681975840"><span class="hs-identifier hs-var">ds</span></a></span><span>
+</span><span id="line-168"></span><span>  </span><span class="annot"><span class="annottext">Set Reference -&gt; Set Reference -&gt; Set Reference
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">((Reference, EffectDeclaration v a) -&gt; Set Reference)
+-&gt; Map v (Reference, EffectDeclaration v a) -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; Set Reference
+forall v a. Ord v =&gt; DataDeclaration v a -&gt; Set Reference
+</span><span class="hs-identifier hs-var">DD.dependencies</span></span><span> </span><span class="annot"><span class="annottext">(DataDeclaration v a -&gt; Set Reference)
+-&gt; ((Reference, EffectDeclaration v a) -&gt; DataDeclaration v a)
+-&gt; (Reference, EffectDeclaration v a)
+-&gt; Set Reference
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">EffectDeclaration v a -&gt; DataDeclaration v a
+forall v a. EffectDeclaration v a -&gt; DataDeclaration v a
+</span><span class="hs-identifier hs-var hs-var">DD.toDataDecl</span></span><span> </span><span class="annot"><span class="annottext">(EffectDeclaration v a -&gt; DataDeclaration v a)
+-&gt; ((Reference, EffectDeclaration v a) -&gt; EffectDeclaration v a)
+-&gt; (Reference, EffectDeclaration v a)
+-&gt; DataDeclaration v a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Reference, EffectDeclaration v a) -&gt; EffectDeclaration v a
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+</span><a href="#local-6989586621681975839"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-169"></span><span>  </span><span class="annot"><span class="annottext">Set Reference -&gt; Set Reference -&gt; Set Reference
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">((v, Term v a) -&gt; Set Reference)
+-&gt; [(v, Term v a)] -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Term v a -&gt; Set Reference
+forall v vt at ap a.
+(Ord v, Ord vt) =&gt;
+Term2 vt at ap v a -&gt; Set Reference
+</span><span class="hs-identifier hs-var">Term.dependencies</span></span><span> </span><span class="annot"><span class="annottext">(Term v a -&gt; Set Reference)
+-&gt; ((v, Term v a) -&gt; Term v a) -&gt; (v, Term v a) -&gt; Set Reference
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(v, Term v a) -&gt; Term v a
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a)]
+</span><a href="#local-6989586621681975838"><span class="hs-identifier hs-var">ts</span></a></span><span>
+</span><span id="line-170"></span><span>  </span><span class="annot"><span class="annottext">Set Reference -&gt; Set Reference -&gt; Set Reference
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">([(v, Term v a)] -&gt; Set Reference)
+-&gt; Map WatchKind [(v, Term v a)] -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((v, Term v a) -&gt; Set Reference)
+-&gt; [(v, Term v a)] -&gt; Set Reference
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Term v a -&gt; Set Reference
+forall v vt at ap a.
+(Ord v, Ord vt) =&gt;
+Term2 vt at ap v a -&gt; Set Reference
+</span><span class="hs-identifier hs-var">Term.dependencies</span></span><span> </span><span class="annot"><span class="annottext">(Term v a -&gt; Set Reference)
+-&gt; ((v, Term v a) -&gt; Term v a) -&gt; (v, Term v a) -&gt; Set Reference
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(v, Term v a) -&gt; Term v a
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Map WatchKind [(v, Term v a)]
+</span><a href="#local-6989586621681975837"><span class="hs-identifier hs-var">ws</span></a></span><span>
+</span><span id="line-171"></span><span>
+</span><span id="line-172"></span><span id="local-6989586621681975832"><span id="local-6989586621681975833"><span class="annot"><a href="Unison.UnisonFile.html#discardTypes"><span class="hs-identifier hs-type">discardTypes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975833"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975832"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975833"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975832"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-173"></span><span id="discardTypes"><span class="annot"><span class="annottext">discardTypes :: TypecheckedUnisonFile v a -&gt; UnisonFile v a
+</span><a href="Unison.UnisonFile.html#discardTypes"><span class="hs-identifier hs-var hs-var">discardTypes</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFileId"><span class="hs-identifier hs-type">TypecheckedUnisonFileId</span></a></span><span> </span><span id="local-6989586621681975831"><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+</span><a href="#local-6989586621681975831"><span class="hs-identifier hs-var">datas</span></a></span></span><span> </span><span id="local-6989586621681975830"><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a)
+</span><a href="#local-6989586621681975830"><span class="hs-identifier hs-var">effects</span></a></span></span><span> </span><span id="local-6989586621681975829"><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975829"><span class="hs-identifier hs-var">terms</span></a></span></span><span> </span><span id="local-6989586621681975828"><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975828"><span class="hs-identifier hs-var">watches</span></a></span></span><span> </span><span class="annot"><span class="annottext">Map v (Id, Maybe WatchKind, Term v a, Type v a)
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span>
+</span><span id="line-174"></span><span>  </span><span id="local-6989586621681975827"><span class="annot"><span class="annottext">watches' :: Map WatchKind [(v, Term v a)]
+</span><a href="#local-6989586621681975827"><span class="hs-identifier hs-var hs-var">watches'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)] -&gt; [(v, Term v a)]
+forall a b c. [(a, b, c)] -&gt; [(a, b)]
+</span><a href="#local-6989586621681975826"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">([(v, Term v a, Type v a)] -&gt; [(v, Term v a)])
+-&gt; ([[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)])
+-&gt; [[(v, Term v a, Type v a)]]
+-&gt; [(v, Term v a)]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><span class="hs-identifier hs-var">mconcat</span></span><span> </span><span class="annot"><span class="annottext">([[(v, Term v a, Type v a)]] -&gt; [(v, Term v a)])
+-&gt; Map WatchKind [[(v, Term v a, Type v a)]]
+-&gt; Map WatchKind [(v, Term v a)]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+-&gt; Map WatchKind [[(v, Term v a, Type v a)]]
+forall (f :: * -&gt; *) k v.
+(Foldable f, Ord k) =&gt;
+f (k, v) -&gt; Map k [v]
+</span><span class="hs-identifier hs-var">List.multimap</span></span><span> </span><span class="annot"><span class="annottext">[(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="#local-6989586621681975828"><span class="hs-identifier hs-var">watches</span></a></span><span>
+</span><span id="line-175"></span><span>  </span><span id="local-6989586621681975826"><span class="annot"><span class="annottext">g :: [(a, b, c)] -&gt; [(a, b)]
+</span><a href="#local-6989586621681975826"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621681975824"><span class="annot"><span class="annottext">[(a, b, c)]
+</span><a href="#local-6989586621681975824"><span class="hs-identifier hs-var">tup3s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681975823"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621681975822"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975823"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681975823"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975822"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621681975822"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975821"><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621681975821"><span class="hs-identifier hs-var">_t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(a, b, c)]
+</span><a href="#local-6989586621681975824"><span class="hs-identifier hs-var">tup3s</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-176"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; [(v, Term v a)]
+-&gt; Map WatchKind [(v, Term v a)]
+-&gt; UnisonFile v a
+forall v a.
+Map v (Id, DataDeclaration v a)
+-&gt; Map v (Id, EffectDeclaration v a)
+-&gt; [(v, Term v a)]
+-&gt; Map WatchKind [(v, Term v a)]
+-&gt; UnisonFile v a
+</span><a href="Unison.UnisonFile.Type.html#UnisonFileId"><span class="hs-identifier hs-var">UnisonFileId</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a)
+</span><a href="#local-6989586621681975831"><span class="hs-identifier hs-var">datas</span></a></span><span> </span><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a)
+</span><a href="#local-6989586621681975830"><span class="hs-identifier hs-var">effects</span></a></span><span> </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975819"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975818"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975819"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975819"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975818"><span class="annot"><span class="annottext">Term v a
+</span><a href="#local-6989586621681975818"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Type v a
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]] -&gt; [(v, Term v a, Type v a)]
+forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
+</span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="annot"><span class="annottext">[[(v, Term v a, Type v a)]]
+</span><a href="#local-6989586621681975829"><span class="hs-identifier hs-var">terms</span></a></span><span> </span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Map WatchKind [(v, Term v a)]
+</span><a href="#local-6989586621681975827"><span class="hs-identifier hs-var">watches'</span></a></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span id="local-6989586621681975816"><span id="local-6989586621681975817"><span class="annot"><a href="Unison.UnisonFile.html#declsToTypeLookup"><span class="hs-identifier hs-type">declsToTypeLookup</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Var</span></span><span> </span><span class="annot"><a href="#local-6989586621681975817"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#UnisonFile"><span class="hs-identifier hs-type">UnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975817"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975816"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unison.Typechecker.TypeLookup.html#TypeLookup"><span class="hs-identifier hs-type">TL.TypeLookup</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975817"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975816"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-179"></span><span id="declsToTypeLookup"><span class="annot"><span class="annottext">declsToTypeLookup :: UnisonFile v a -&gt; TypeLookup v a
+</span><a href="Unison.UnisonFile.html#declsToTypeLookup"><span class="hs-identifier hs-var hs-var">declsToTypeLookup</span></a></span></span><span> </span><span id="local-6989586621681975815"><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975815"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Reference (Type v a)
+-&gt; Map Reference (DataDeclaration v a)
+-&gt; Map Reference (EffectDeclaration v a)
+-&gt; TypeLookup v a
+forall v a.
+Map Reference (Type v a)
+-&gt; Map Reference (DataDeclaration v a)
+-&gt; Map Reference (EffectDeclaration v a)
+-&gt; TypeLookup v a
+</span><a href="Unison.Typechecker.TypeLookup.html#TypeLookup"><span class="hs-identifier hs-var">TL.TypeLookup</span></a></span><span> </span><span class="annot"><span class="annottext">Map Reference (Type v a)
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-180"></span><span>                          </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a)
+-&gt; Map Reference (DataDeclaration v a)
+forall k a. Map k (Reference, a) -&gt; Map Reference a
+</span><a href="#local-6989586621681975813"><span class="hs-identifier hs-var">wrangle</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+forall v a.
+UnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.html#dataDeclarations"><span class="hs-identifier hs-var">dataDeclarations</span></a></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975815"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-181"></span><span>                          </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a)
+-&gt; Map Reference (EffectDeclaration v a)
+forall k a. Map k (Reference, a) -&gt; Map Reference a
+</span><a href="#local-6989586621681975813"><span class="hs-identifier hs-var">wrangle</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnisonFile v a -&gt; Map v (Reference, EffectDeclaration v a)
+forall v a.
+UnisonFile v a -&gt; Map v (Reference, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.html#effectDeclarations"><span class="hs-identifier hs-var">effectDeclarations</span></a></span><span> </span><span class="annot"><span class="annottext">UnisonFile v a
+</span><a href="#local-6989586621681975815"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621681975813"><span class="annot"><span class="annottext">wrangle :: Map k (Reference, a) -&gt; Map Reference a
+</span><a href="#local-6989586621681975813"><span class="hs-identifier hs-var hs-var">wrangle</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Reference, a)] -&gt; Map Reference a
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="annot"><span class="annottext">([(Reference, a)] -&gt; Map Reference a)
+-&gt; (Map k (Reference, a) -&gt; [(Reference, a)])
+-&gt; Map k (Reference, a)
+-&gt; Map Reference a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Map k (Reference, a) -&gt; [(Reference, a)]
+forall k a. Map k a -&gt; [a]
+</span><span class="hs-identifier hs-var">Map.elems</span></span><span>
+</span><span id="line-183"></span><span>
+</span><span id="line-184"></span><span class="hs-comment">-- Returns true if the file has any definitions or watches</span><span>
+</span><span id="line-185"></span><span id="local-6989586621681975811"><span id="local-6989586621681975812"><span class="annot"><a href="Unison.UnisonFile.html#nonEmpty"><span class="hs-identifier hs-type">nonEmpty</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975812"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975811"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span></span><span>
+</span><span id="line-186"></span><span id="nonEmpty"><span class="annot"><span class="annottext">nonEmpty :: TypecheckedUnisonFile v a -&gt; Bool
+</span><a href="Unison.UnisonFile.html#nonEmpty"><span class="hs-identifier hs-var hs-var">nonEmpty</span></a></span></span><span> </span><span id="local-6989586621681975810"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975810"><span class="hs-identifier hs-var">uf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-187"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map v (Reference, DataDeclaration v a) -&gt; Bool
+forall k a. Map k a -&gt; Bool
+</span><span class="hs-identifier hs-var">Map.null</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Reference, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.html#dataDeclarations%27"><span class="hs-identifier hs-var">dataDeclarations'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975810"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span>
+</span><span id="line-188"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map v (Reference, EffectDeclaration v a) -&gt; Bool
+forall k a. Map k a -&gt; Bool
+</span><span class="hs-identifier hs-var">Map.null</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+-&gt; Map v (Reference, EffectDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a
+-&gt; Map v (Reference, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.html#effectDeclarations%27"><span class="hs-identifier hs-var">effectDeclarations'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975810"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span>
+</span><span id="line-189"></span><span>  </span><span class="annot"><span class="annottext">([(v, Term v a, Type v a)] -&gt; Bool)
+-&gt; [[(v, Term v a, Type v a)]] -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; (a -&gt; Bool) -&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">any</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Bool)
+-&gt; ([(v, Term v a, Type v a)] -&gt; Bool)
+-&gt; [(v, Term v a, Type v a)]
+-&gt; Bool
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[(v, Term v a, Type v a)] -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">null</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+forall v a.
+TypecheckedUnisonFile v a -&gt; [[(v, Term v a, Type v a)]]
+</span><a href="Unison.UnisonFile.Type.html#topLevelComponents%27"><span class="hs-identifier hs-var hs-var">topLevelComponents'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975810"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span>
+</span><span id="line-190"></span><span>  </span><span class="annot"><span class="annottext">((WatchKind, [(v, Term v a, Type v a)]) -&gt; Bool)
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])] -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; (a -&gt; Bool) -&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">any</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Bool)
+-&gt; ((WatchKind, [(v, Term v a, Type v a)]) -&gt; Bool)
+-&gt; (WatchKind, [(v, Term v a, Type v a)])
+-&gt; Bool
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(WatchKind, [(v, Term v a, Type v a)]) -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">null</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+forall v a.
+TypecheckedUnisonFile v a
+-&gt; [(WatchKind, [(v, Term v a, Type v a)])]
+</span><a href="Unison.UnisonFile.Type.html#watchComponents"><span class="hs-identifier hs-var hs-var">watchComponents</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975810"><span class="hs-identifier hs-var">uf</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-191"></span><span>
+</span><span id="line-192"></span><span class="annot"><a href="Unison.UnisonFile.html#hashConstructors"><span class="hs-identifier hs-type">hashConstructors</span></a></span><span>
+</span><span id="line-193"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681975804"><span class="annot"><a href="#local-6989586621681975804"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span id="local-6989586621681975803"><span class="annot"><a href="#local-6989586621681975803"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621681975804"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unison.UnisonFile.Type.html#TypecheckedUnisonFile"><span class="hs-identifier hs-type">TypecheckedUnisonFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975804"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681975803"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621681975804"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Referent.Id</span></span><span>
+</span><span id="line-194"></span><span id="hashConstructors"><span class="annot"><span class="annottext">hashConstructors :: TypecheckedUnisonFile v a -&gt; Map v Id
+</span><a href="Unison.UnisonFile.html#hashConstructors"><span class="hs-identifier hs-var hs-var">hashConstructors</span></a></span></span><span> </span><span id="local-6989586621681975802"><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975802"><span class="hs-identifier hs-var">file</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-195"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681975801"><span class="annot"><span class="annottext">ctors1 :: [(v, Id)]
+</span><a href="#local-6989586621681975801"><span class="hs-identifier hs-var hs-var">ctors1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map v (Id, DataDeclaration v a) -&gt; [(Id, DataDeclaration v a)]
+forall k a. Map k a -&gt; [a]
+</span><span class="hs-identifier hs-var">Map.elems</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, DataDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#dataDeclarationsId%27"><span class="hs-identifier hs-var hs-var">dataDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975802"><span class="hs-identifier hs-var">file</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Id, DataDeclaration v a)]
+-&gt; ((Id, DataDeclaration v a) -&gt; [(v, Id)]) -&gt; [(v, Id)]
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621681975800"><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975800"><span class="hs-identifier hs-var">ref</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975799"><span class="annot"><span class="annottext">DataDeclaration v a
+</span><a href="#local-6989586621681975799"><span class="hs-identifier hs-var">dd</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-196"></span><span>        </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975798"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Id -&gt; ConstructorId -&gt; ConstructorType -&gt; Id
+</span><span class="hs-identifier hs-var">Referent.ConId</span></span><span> </span><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975800"><span class="hs-identifier hs-var">ref</span></a></span><span> </span><span class="annot"><span class="annottext">ConstructorId
+</span><a href="#local-6989586621681975796"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">ConstructorType
+</span><span class="hs-identifier hs-var">CT.Data</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975798"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975798"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975796"><span class="annot"><span class="annottext">ConstructorId
+</span><a href="#local-6989586621681975796"><span class="hs-identifier hs-var">i</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; [v]
+forall v a. DataDeclaration v a -&gt; [v]
+</span><span class="hs-identifier hs-var">DD.constructorVars</span></span><span> </span><span class="annot"><span class="annottext">DataDeclaration v a
+</span><a href="#local-6989586621681975799"><span class="hs-identifier hs-var">dd</span></a></span><span> </span><span class="annot"><span class="annottext">[v] -&gt; [ConstructorId] -&gt; [(v, ConstructorId)]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><span class="hs-operator hs-var">`zip`</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">ConstructorId
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-197"></span><span>      </span><span id="local-6989586621681975793"><span class="annot"><span class="annottext">ctors2 :: [(v, Id)]
+</span><a href="#local-6989586621681975793"><span class="hs-identifier hs-var hs-var">ctors2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map v (Id, EffectDeclaration v a) -&gt; [(Id, EffectDeclaration v a)]
+forall k a. Map k a -&gt; [a]
+</span><span class="hs-identifier hs-var">Map.elems</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+forall v a.
+TypecheckedUnisonFile v a -&gt; Map v (Id, EffectDeclaration v a)
+</span><a href="Unison.UnisonFile.Type.html#effectDeclarationsId%27"><span class="hs-identifier hs-var hs-var">effectDeclarationsId'</span></a></span><span> </span><span class="annot"><span class="annottext">TypecheckedUnisonFile v a
+</span><a href="#local-6989586621681975802"><span class="hs-identifier hs-var">file</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Id, EffectDeclaration v a)]
+-&gt; ((Id, EffectDeclaration v a) -&gt; [(v, Id)]) -&gt; [(v, Id)]
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621681975792"><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975792"><span class="hs-identifier hs-var">ref</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681975791"><span class="annot"><span class="annottext">EffectDeclaration v a
+</span><a href="#local-6989586621681975791"><span class="hs-identifier hs-var">dd</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-198"></span><span>        </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975790"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Id -&gt; ConstructorId -&gt; ConstructorType -&gt; Id
+</span><span class="hs-identifier hs-var">Referent.ConId</span></span><span> </span><span class="annot"><span class="annottext">Id
+</span><a href="#local-6989586621681975792"><span class="hs-identifier hs-var">ref</span></a></span><span> </span><span class="annot"><span class="annottext">ConstructorId
+</span><a href="#local-6989586621681975789"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">ConstructorType
+</span><span class="hs-identifier hs-var">CT.Effect</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681975790"><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621681975790"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621681975789"><span class="annot"><span class="annottext">ConstructorId
+</span><a href="#local-6989586621681975789"><span class="hs-identifier hs-var">i</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DataDeclaration v a -&gt; [v]
+forall v a. DataDeclaration v a -&gt; [v]
+</span><span class="hs-identifier hs-var">DD.constructorVars</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EffectDeclaration v a -&gt; DataDeclaration v a
+forall v a. EffectDeclaration v a -&gt; DataDeclaration v a
+</span><span class="hs-identifier hs-var hs-var">DD.toDataDecl</span></span><span> </span><span class="annot"><span class="annottext">EffectDeclaration v a
+</span><a href="#local-6989586621681975791"><span class="hs-identifier hs-var">dd</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[v] -&gt; [ConstructorId] -&gt; [(v, ConstructorId)]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><span class="hs-operator hs-var">`zip`</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">ConstructorId
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-199"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[(v, Id)] -&gt; Map v Id
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.fromList</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(v, Id)]
+</span><a href="#local-6989586621681975801"><span class="hs-identifier hs-var">ctors1</span></a></span><span> </span><span class="annot"><span class="annottext">[(v, Id)] -&gt; [(v, Id)] -&gt; [(v, Id)]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[(v, Id)]
+</span><a href="#local-6989586621681975793"><span class="hs-identifier hs-var">ctors2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-200"></span></pre></body></html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="%24con2tag_7fVa2Y1A53K3dtgc5F2lhN"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">U.Codebase.Sqlite.Patch.TypeEdit</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bifoldable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bifoldable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">bifoldMap</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">bimap</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bitraversable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bitraversable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">bitraverse</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">U.Codebase.Reference</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reference'</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html"><span class="hs-identifier">U.Codebase.Sqlite.DbId</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Db</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html"><span class="hs-identifier">U.Codebase.Sqlite.LocalIds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalDefnId"><span class="hs-identifier">LocalDefnId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalTextId"><span class="hs-identifier">LocalTextId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">type</span><span> </span><span id="LocalTypeEdit"><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#LocalTypeEdit"><span class="hs-identifier hs-var">LocalTypeEdit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-type">TypeEdit'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalTextId"><span class="hs-identifier hs-type">LocalTextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalDefnId"><span class="hs-identifier hs-type">LocalDefnId</span></a></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">type</span><span> </span><span id="TypeEdit"><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit"><span class="hs-identifier hs-var">TypeEdit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-type">TypeEdit'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#TextId"><span class="hs-identifier hs-type">Db.TextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#ObjectId"><span class="hs-identifier hs-type">Db.ObjectId</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="TypeEdit%27"><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-var">TypeEdit'</span></a></span></span><span> </span><span id="local-6989586621679258465"><span class="annot"><a href="#local-6989586621679258465"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span id="local-6989586621679258464"><span class="annot"><a href="#local-6989586621679258464"><span class="hs-identifier hs-type">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Replace"><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-var">Replace</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference'</span></span><span> </span><span class="annot"><a href="#local-6989586621679258465"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679258464"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Deprecate"><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679258408"><span id="local-6989586621679258410"><span class="annot"><span class="annottext">TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+(TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool) -&gt; Eq (TypeEdit' t h)
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+forall t h. (Eq t, Eq h) =&gt; TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+/= :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c/= :: forall t h. (Eq t, Eq h) =&gt; TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+== :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c== :: forall t h. (Eq t, Eq h) =&gt; TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679258392"><span id="local-6989586621679258394"><span id="local-6989586621679258396"><span id="local-6989586621679258398"><span id="local-6989586621679258400"><span id="local-6989586621679258402"><span id="local-6989586621679258404"><span class="annot"><span class="annottext">Eq (TypeEdit' t h)
+Eq (TypeEdit' t h)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Ordering)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h)
+-&gt; (TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h)
+-&gt; Ord (TypeEdit' t h)
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Ordering
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+forall t h. (Ord t, Ord h) =&gt; Eq (TypeEdit' t h)
+forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Ordering
+forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+min :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+$cmin :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+max :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+$cmax :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; TypeEdit' t h
+&gt;= :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c&gt;= :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+&gt; :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c&gt; :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+&lt;= :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c&lt;= :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+&lt; :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+$c&lt; :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Bool
+compare :: TypeEdit' t h -&gt; TypeEdit' t h -&gt; Ordering
+$ccompare :: forall t h.
+(Ord t, Ord h) =&gt;
+TypeEdit' t h -&gt; TypeEdit' t h -&gt; Ordering
+$cp1Ord :: forall t h. (Ord t, Ord h) =&gt; Eq (TypeEdit' t h)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679258385"><span id="local-6989586621679258387"><span id="local-6989586621679258389"><span class="annot"><span class="annottext">Int -&gt; TypeEdit' t h -&gt; ShowS
+[TypeEdit' t h] -&gt; ShowS
+TypeEdit' t h -&gt; String
+(Int -&gt; TypeEdit' t h -&gt; ShowS)
+-&gt; (TypeEdit' t h -&gt; String)
+-&gt; ([TypeEdit' t h] -&gt; ShowS)
+-&gt; Show (TypeEdit' t h)
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+forall t h. (Show t, Show h) =&gt; Int -&gt; TypeEdit' t h -&gt; ShowS
+forall t h. (Show t, Show h) =&gt; [TypeEdit' t h] -&gt; ShowS
+forall t h. (Show t, Show h) =&gt; TypeEdit' t h -&gt; String
+showList :: [TypeEdit' t h] -&gt; ShowS
+$cshowList :: forall t h. (Show t, Show h) =&gt; [TypeEdit' t h] -&gt; ShowS
+show :: TypeEdit' t h -&gt; String
+$cshow :: forall t h. (Show t, Show h) =&gt; TypeEdit' t h -&gt; String
+showsPrec :: Int -&gt; TypeEdit' t h -&gt; ShowS
+$cshowsPrec :: forall t h. (Show t, Show h) =&gt; Int -&gt; TypeEdit' t h -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679258379"><span id="local-6989586621679258381"><span class="annot"><span class="hs-identifier hs-type">Bifunctor</span></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-type">TypeEdit'</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-18"></span><span>  </span><span id="local-6989586621679258377"><span class="annot"><span class="annottext">bimap :: (a -&gt; b) -&gt; (c -&gt; d) -&gt; TypeEdit' a c -&gt; TypeEdit' b d
+</span><a href="#local-6989586621679258377"><span class="hs-identifier hs-var hs-var hs-var hs-var">bimap</span></a></span></span><span> </span><span id="local-6989586621679258376"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621679258376"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679258375"><span class="annot"><span class="annottext">c -&gt; d
+</span><a href="#local-6989586621679258375"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-type">Replace</span></a></span><span> </span><span id="local-6989586621679258374"><span class="annot"><span class="annottext">Reference' a c
+</span><a href="#local-6989586621679258374"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Reference' b d -&gt; TypeEdit' b d
+forall t h. Reference' t h -&gt; TypeEdit' t h
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-var">Replace</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; b) -&gt; (c -&gt; d) -&gt; Reference' a c -&gt; Reference' b d
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621679258376"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">c -&gt; d
+</span><a href="#local-6989586621679258375"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Reference' a c
+</span><a href="#local-6989586621679258374"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>  </span><span class="annot"><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">c -&gt; d
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">TypeEdit' a c
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeEdit' b d
+forall t h. TypeEdit' t h
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679258367"><span id="local-6989586621679258369"><span id="local-6989586621679258372"><span class="annot"><span class="hs-identifier hs-type">Bifoldable</span></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-type">TypeEdit'</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-22"></span><span>  </span><span id="local-6989586621679258365"><span class="annot"><span class="annottext">bifoldMap :: (a -&gt; m) -&gt; (b -&gt; m) -&gt; TypeEdit' a b -&gt; m
+</span><a href="#local-6989586621679258365"><span class="hs-identifier hs-var hs-var hs-var hs-var">bifoldMap</span></a></span></span><span> </span><span id="local-6989586621679258364"><span class="annot"><span class="annottext">a -&gt; m
+</span><a href="#local-6989586621679258364"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679258363"><span class="annot"><span class="annottext">b -&gt; m
+</span><a href="#local-6989586621679258363"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-type">Replace</span></a></span><span> </span><span id="local-6989586621679258362"><span class="annot"><span class="annottext">Reference' a b
+</span><a href="#local-6989586621679258362"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; m) -&gt; (b -&gt; m) -&gt; Reference' a b -&gt; m
+forall (p :: * -&gt; * -&gt; *) m a b.
+(Bifoldable p, Monoid m) =&gt;
+(a -&gt; m) -&gt; (b -&gt; m) -&gt; p a b -&gt; m
+</span><span class="hs-identifier hs-var">bifoldMap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; m
+</span><a href="#local-6989586621679258364"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">b -&gt; m
+</span><a href="#local-6989586621679258363"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Reference' a b
+</span><a href="#local-6989586621679258362"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="annot"><span class="hs-identifier hs-var">bifoldMap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; m
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">b -&gt; m
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">TypeEdit' a b
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bitraversable</span></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#TypeEdit%27"><span class="hs-identifier hs-type">TypeEdit'</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-26"></span><span>  </span><span id="local-6989586621679258357"><span class="annot"><span class="annottext">bitraverse :: (a -&gt; f c) -&gt; (b -&gt; f d) -&gt; TypeEdit' a b -&gt; f (TypeEdit' c d)
+</span><a href="#local-6989586621679258357"><span class="hs-identifier hs-var hs-var hs-var hs-var">bitraverse</span></a></span></span><span> </span><span id="local-6989586621679258356"><span class="annot"><span class="annottext">a -&gt; f c
+</span><a href="#local-6989586621679258356"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679258355"><span class="annot"><span class="annottext">b -&gt; f d
+</span><a href="#local-6989586621679258355"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-type">Replace</span></a></span><span> </span><span id="local-6989586621679258354"><span class="annot"><span class="annottext">Reference' a b
+</span><a href="#local-6989586621679258354"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Reference' c d -&gt; TypeEdit' c d
+forall t h. Reference' t h -&gt; TypeEdit' t h
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Replace"><span class="hs-identifier hs-var">Replace</span></a></span><span> </span><span class="annot"><span class="annottext">(Reference' c d -&gt; TypeEdit' c d)
+-&gt; f (Reference' c d) -&gt; f (TypeEdit' c d)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">(a -&gt; f c) -&gt; (b -&gt; f d) -&gt; Reference' a b -&gt; f (Reference' c d)
+forall (t :: * -&gt; * -&gt; *) (f :: * -&gt; *) a c b d.
+(Bitraversable t, Applicative f) =&gt;
+(a -&gt; f c) -&gt; (b -&gt; f d) -&gt; t a b -&gt; f (t c d)
+</span><span class="hs-identifier hs-var">bitraverse</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; f c
+</span><a href="#local-6989586621679258356"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">b -&gt; f d
+</span><a href="#local-6989586621679258355"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Reference' a b
+</span><a href="#local-6989586621679258354"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><span class="hs-identifier hs-var">bitraverse</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; f c
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">b -&gt; f d
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">TypeEdit' a b
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeEdit' c d -&gt; f (TypeEdit' c d)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">TypeEdit' c d
+forall t h. TypeEdit' t h
+</span><a href="U.Codebase.Sqlite.Patch.TypeEdit.html#Deprecate"><span class="hs-identifier hs-var">Deprecate</span></a></span><span>
+</span><span id="line-28"></span></pre></body></html>

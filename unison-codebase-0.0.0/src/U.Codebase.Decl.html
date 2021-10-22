@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="%24maxtag_43Wer35eoR1JW9WjBRuM5g"><span id="%24tag2con_43Wer35eoR1JW9WjBRuM5g"><span id="%24con2tag_43Wer35eoR1JW9WjBRuM5g"><span id="%24con2tag_CcOaeiwj11P7QkkxbZejon"></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DeriveFoldable #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DeriveFunctor #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RecordWildCards #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">U.Codebase.Decl</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Set</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Set</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Word64</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="U.Codebase.Reference.html"><span class="hs-identifier">U.Codebase.Reference</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Reference.html#Reference%27"><span class="hs-identifier">Reference'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="U.Codebase.Type.html"><span class="hs-identifier">U.Codebase.Type</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Type.html#TypeR"><span class="hs-identifier">TypeR</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="U.Codebase.Type.html"><span class="hs-identifier">U.Codebase.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Type</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">U.Util.Hash</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Hash</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">type</span><span> </span><span id="ConstructorId"><span class="annot"><a href="U.Codebase.Decl.html#ConstructorId"><span class="hs-identifier hs-var">ConstructorId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="DeclType"><span class="annot"><a href="U.Codebase.Decl.html#DeclType"><span class="hs-identifier hs-var">DeclType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Data"><span class="annot"><a href="U.Codebase.Decl.html#Data"><span class="hs-identifier hs-var">Data</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Effect"><span class="annot"><a href="U.Codebase.Decl.html#Effect"><span class="hs-identifier hs-var">Effect</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679114308"><span id="local-6989586621679114310"><span class="annot"><span class="annottext">DeclType -&gt; DeclType -&gt; Bool
+(DeclType -&gt; DeclType -&gt; Bool)
+-&gt; (DeclType -&gt; DeclType -&gt; Bool) -&gt; Eq DeclType
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: DeclType -&gt; DeclType -&gt; Bool
+$c/= :: DeclType -&gt; DeclType -&gt; Bool
+== :: DeclType -&gt; DeclType -&gt; Bool
+$c== :: DeclType -&gt; DeclType -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114292"><span id="local-6989586621679114294"><span id="local-6989586621679114296"><span id="local-6989586621679114298"><span id="local-6989586621679114300"><span id="local-6989586621679114302"><span id="local-6989586621679114304"><span class="annot"><span class="annottext">Eq DeclType
+Eq DeclType
+-&gt; (DeclType -&gt; DeclType -&gt; Ordering)
+-&gt; (DeclType -&gt; DeclType -&gt; Bool)
+-&gt; (DeclType -&gt; DeclType -&gt; Bool)
+-&gt; (DeclType -&gt; DeclType -&gt; Bool)
+-&gt; (DeclType -&gt; DeclType -&gt; Bool)
+-&gt; (DeclType -&gt; DeclType -&gt; DeclType)
+-&gt; (DeclType -&gt; DeclType -&gt; DeclType)
+-&gt; Ord DeclType
+DeclType -&gt; DeclType -&gt; Bool
+DeclType -&gt; DeclType -&gt; Ordering
+DeclType -&gt; DeclType -&gt; DeclType
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: DeclType -&gt; DeclType -&gt; DeclType
+$cmin :: DeclType -&gt; DeclType -&gt; DeclType
+max :: DeclType -&gt; DeclType -&gt; DeclType
+$cmax :: DeclType -&gt; DeclType -&gt; DeclType
+&gt;= :: DeclType -&gt; DeclType -&gt; Bool
+$c&gt;= :: DeclType -&gt; DeclType -&gt; Bool
+&gt; :: DeclType -&gt; DeclType -&gt; Bool
+$c&gt; :: DeclType -&gt; DeclType -&gt; Bool
+&lt;= :: DeclType -&gt; DeclType -&gt; Bool
+$c&lt;= :: DeclType -&gt; DeclType -&gt; Bool
+&lt; :: DeclType -&gt; DeclType -&gt; Bool
+$c&lt; :: DeclType -&gt; DeclType -&gt; Bool
+compare :: DeclType -&gt; DeclType -&gt; Ordering
+$ccompare :: DeclType -&gt; DeclType -&gt; Ordering
+$cp1Ord :: Eq DeclType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114285"><span id="local-6989586621679114287"><span id="local-6989586621679114289"><span class="annot"><span class="annottext">Int -&gt; DeclType -&gt; ShowS
+[DeclType] -&gt; ShowS
+DeclType -&gt; String
+(Int -&gt; DeclType -&gt; ShowS)
+-&gt; (DeclType -&gt; String) -&gt; ([DeclType] -&gt; ShowS) -&gt; Show DeclType
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [DeclType] -&gt; ShowS
+$cshowList :: [DeclType] -&gt; ShowS
+show :: DeclType -&gt; String
+$cshow :: DeclType -&gt; String
+showsPrec :: Int -&gt; DeclType -&gt; ShowS
+$cshowsPrec :: Int -&gt; DeclType -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114268"><span id="local-6989586621679114270"><span id="local-6989586621679114272"><span id="local-6989586621679114274"><span id="local-6989586621679114276"><span id="local-6989586621679114278"><span id="local-6989586621679114280"><span id="local-6989586621679114282"><span class="annot"><span class="annottext">Int -&gt; DeclType
+DeclType -&gt; Int
+DeclType -&gt; [DeclType]
+DeclType -&gt; DeclType
+DeclType -&gt; DeclType -&gt; [DeclType]
+DeclType -&gt; DeclType -&gt; DeclType -&gt; [DeclType]
+(DeclType -&gt; DeclType)
+-&gt; (DeclType -&gt; DeclType)
+-&gt; (Int -&gt; DeclType)
+-&gt; (DeclType -&gt; Int)
+-&gt; (DeclType -&gt; [DeclType])
+-&gt; (DeclType -&gt; DeclType -&gt; [DeclType])
+-&gt; (DeclType -&gt; DeclType -&gt; [DeclType])
+-&gt; (DeclType -&gt; DeclType -&gt; DeclType -&gt; [DeclType])
+-&gt; Enum DeclType
+forall a.
+(a -&gt; a)
+-&gt; (a -&gt; a)
+-&gt; (Int -&gt; a)
+-&gt; (a -&gt; Int)
+-&gt; (a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; a -&gt; [a])
+-&gt; Enum a
+enumFromThenTo :: DeclType -&gt; DeclType -&gt; DeclType -&gt; [DeclType]
+$cenumFromThenTo :: DeclType -&gt; DeclType -&gt; DeclType -&gt; [DeclType]
+enumFromTo :: DeclType -&gt; DeclType -&gt; [DeclType]
+$cenumFromTo :: DeclType -&gt; DeclType -&gt; [DeclType]
+enumFromThen :: DeclType -&gt; DeclType -&gt; [DeclType]
+$cenumFromThen :: DeclType -&gt; DeclType -&gt; [DeclType]
+enumFrom :: DeclType -&gt; [DeclType]
+$cenumFrom :: DeclType -&gt; [DeclType]
+fromEnum :: DeclType -&gt; Int
+$cfromEnum :: DeclType -&gt; Int
+toEnum :: Int -&gt; DeclType
+$ctoEnum :: Int -&gt; DeclType
+pred :: DeclType -&gt; DeclType
+$cpred :: DeclType -&gt; DeclType
+succ :: DeclType -&gt; DeclType
+$csucc :: DeclType -&gt; DeclType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">type</span><span> </span><span id="Decl"><span class="annot"><a href="U.Codebase.Decl.html#Decl"><span class="hs-identifier hs-var">Decl</span></a></span></span><span> </span><span id="local-6989586621679114265"><span class="annot"><a href="#local-6989586621679114265"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#DeclR"><span class="hs-identifier hs-type">DeclR</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#TypeRef"><span class="hs-identifier hs-type">TypeRef</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114265"><span class="hs-identifier hs-type">v</span></a></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">type</span><span> </span><span id="TypeRef"><span class="annot"><a href="U.Codebase.Decl.html#TypeRef"><span class="hs-identifier hs-var">TypeRef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Reference.html#Reference%27"><span class="hs-identifier hs-type">Reference'</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Hash</span></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">type</span><span> </span><span id="Type"><span class="annot"><a href="U.Codebase.Decl.html#Type"><span class="hs-identifier hs-var">Type</span></a></span></span><span> </span><span id="local-6989586621679114262"><span class="annot"><a href="#local-6989586621679114262"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Type.html#TypeR"><span class="hs-identifier hs-type">TypeR</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#TypeRef"><span class="hs-identifier hs-type">TypeRef</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114262"><span class="hs-identifier hs-type">v</span></a></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">data</span><span> </span><span id="Modifier"><span class="annot"><a href="U.Codebase.Decl.html#Modifier"><span class="hs-identifier hs-var">Modifier</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Structural"><span class="annot"><a href="U.Codebase.Decl.html#Structural"><span class="hs-identifier hs-var">Structural</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Unique"><span class="annot"><a href="U.Codebase.Decl.html#Unique"><span class="hs-identifier hs-var">Unique</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679114256"><span id="local-6989586621679114258"><span class="annot"><span class="annottext">Modifier -&gt; Modifier -&gt; Bool
+(Modifier -&gt; Modifier -&gt; Bool)
+-&gt; (Modifier -&gt; Modifier -&gt; Bool) -&gt; Eq Modifier
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: Modifier -&gt; Modifier -&gt; Bool
+$c/= :: Modifier -&gt; Modifier -&gt; Bool
+== :: Modifier -&gt; Modifier -&gt; Bool
+$c== :: Modifier -&gt; Modifier -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114241"><span id="local-6989586621679114243"><span id="local-6989586621679114245"><span id="local-6989586621679114247"><span id="local-6989586621679114249"><span id="local-6989586621679114251"><span id="local-6989586621679114253"><span class="annot"><span class="annottext">Eq Modifier
+Eq Modifier
+-&gt; (Modifier -&gt; Modifier -&gt; Ordering)
+-&gt; (Modifier -&gt; Modifier -&gt; Bool)
+-&gt; (Modifier -&gt; Modifier -&gt; Bool)
+-&gt; (Modifier -&gt; Modifier -&gt; Bool)
+-&gt; (Modifier -&gt; Modifier -&gt; Bool)
+-&gt; (Modifier -&gt; Modifier -&gt; Modifier)
+-&gt; (Modifier -&gt; Modifier -&gt; Modifier)
+-&gt; Ord Modifier
+Modifier -&gt; Modifier -&gt; Bool
+Modifier -&gt; Modifier -&gt; Ordering
+Modifier -&gt; Modifier -&gt; Modifier
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: Modifier -&gt; Modifier -&gt; Modifier
+$cmin :: Modifier -&gt; Modifier -&gt; Modifier
+max :: Modifier -&gt; Modifier -&gt; Modifier
+$cmax :: Modifier -&gt; Modifier -&gt; Modifier
+&gt;= :: Modifier -&gt; Modifier -&gt; Bool
+$c&gt;= :: Modifier -&gt; Modifier -&gt; Bool
+&gt; :: Modifier -&gt; Modifier -&gt; Bool
+$c&gt; :: Modifier -&gt; Modifier -&gt; Bool
+&lt;= :: Modifier -&gt; Modifier -&gt; Bool
+$c&lt;= :: Modifier -&gt; Modifier -&gt; Bool
+&lt; :: Modifier -&gt; Modifier -&gt; Bool
+$c&lt; :: Modifier -&gt; Modifier -&gt; Bool
+compare :: Modifier -&gt; Modifier -&gt; Ordering
+$ccompare :: Modifier -&gt; Modifier -&gt; Ordering
+$cp1Ord :: Eq Modifier
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114235"><span id="local-6989586621679114237"><span id="local-6989586621679114239"><span class="annot"><span class="annottext">Int -&gt; Modifier -&gt; ShowS
+[Modifier] -&gt; ShowS
+Modifier -&gt; String
+(Int -&gt; Modifier -&gt; ShowS)
+-&gt; (Modifier -&gt; String) -&gt; ([Modifier] -&gt; ShowS) -&gt; Show Modifier
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Modifier] -&gt; ShowS
+$cshowList :: [Modifier] -&gt; ShowS
+show :: Modifier -&gt; String
+$cshow :: Modifier -&gt; String
+showsPrec :: Int -&gt; Modifier -&gt; ShowS
+$cshowsPrec :: Int -&gt; Modifier -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">data</span><span> </span><span id="DeclR"><span class="annot"><a href="U.Codebase.Decl.html#DeclR"><span class="hs-identifier hs-var">DeclR</span></a></span></span><span> </span><span id="local-6989586621679114234"><span class="annot"><a href="#local-6989586621679114234"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span id="local-6989586621679114233"><span class="annot"><a href="#local-6989586621679114233"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DataDeclaration"><span class="annot"><a href="U.Codebase.Decl.html#DataDeclaration"><span class="hs-identifier hs-var">DataDeclaration</span></a></span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="declType"><span class="annot"><span class="annottext">DeclR r v -&gt; DeclType
+</span><a href="U.Codebase.Decl.html#declType"><span class="hs-identifier hs-var hs-var">declType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#DeclType"><span class="hs-identifier hs-type">DeclType</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span id="modifier"><span class="annot"><span class="annottext">DeclR r v -&gt; Modifier
+</span><a href="U.Codebase.Decl.html#modifier"><span class="hs-identifier hs-var hs-var">modifier</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#Modifier"><span class="hs-identifier hs-type">Modifier</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>    </span><span id="bound"><span class="annot"><span class="annottext">DeclR r v -&gt; [v]
+</span><a href="U.Codebase.Decl.html#bound"><span class="hs-identifier hs-var hs-var">bound</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679114233"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>    </span><span id="constructorTypes"><span class="annot"><span class="annottext">DeclR r v -&gt; [TypeR r v]
+</span><a href="U.Codebase.Decl.html#constructorTypes"><span class="hs-identifier hs-var hs-var">constructorTypes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="U.Codebase.Type.html#TypeR"><span class="hs-identifier hs-type">TypeR</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114234"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114233"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679114222"><span id="local-6989586621679114224"><span id="local-6989586621679114226"><span class="annot"><span class="annottext">Int -&gt; DeclR r v -&gt; ShowS
+[DeclR r v] -&gt; ShowS
+DeclR r v -&gt; String
+(Int -&gt; DeclR r v -&gt; ShowS)
+-&gt; (DeclR r v -&gt; String)
+-&gt; ([DeclR r v] -&gt; ShowS)
+-&gt; Show (DeclR r v)
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+forall r v. (Show v, Show r) =&gt; Int -&gt; DeclR r v -&gt; ShowS
+forall r v. (Show v, Show r) =&gt; [DeclR r v] -&gt; ShowS
+forall r v. (Show v, Show r) =&gt; DeclR r v -&gt; String
+showList :: [DeclR r v] -&gt; ShowS
+$cshowList :: forall r v. (Show v, Show r) =&gt; [DeclR r v] -&gt; ShowS
+show :: DeclR r v -&gt; String
+$cshow :: forall r v. (Show v, Show r) =&gt; DeclR r v -&gt; String
+showsPrec :: Int -&gt; DeclR r v -&gt; ShowS
+$cshowsPrec :: forall r v. (Show v, Show r) =&gt; Int -&gt; DeclR r v -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- * Hashing stuff</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span id="local-6989586621679114220"><span id="local-6989586621679114221"><span class="annot"><a href="U.Codebase.Decl.html#dependencies"><span class="hs-identifier hs-type">dependencies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679114221"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679114220"><span class="hs-identifier hs-type">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#DeclR"><span class="hs-identifier hs-type">DeclR</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114221"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114220"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Set</span></span><span> </span><span class="annot"><a href="#local-6989586621679114221"><span class="hs-identifier hs-type">r</span></a></span></span></span><span>
+</span><span id="line-40"></span><span id="dependencies"><span class="annot"><span class="annottext">dependencies :: DeclR r v -&gt; Set r
+</span><a href="U.Codebase.Decl.html#dependencies"><span class="hs-identifier hs-var hs-var">dependencies</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Decl.html#DataDeclaration"><span class="hs-identifier hs-type">DataDeclaration</span></a></span><span> </span><span class="annot"><span class="annottext">DeclType
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Modifier
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[v]
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679114218"><span class="annot"><span class="annottext">[TypeR r v]
+</span><a href="#local-6989586621679114218"><span class="hs-identifier hs-var">cts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(TypeR r v -&gt; Set r) -&gt; [TypeR r v] -&gt; Set r
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="annot"><span class="annottext">TypeR r v -&gt; Set r
+forall v r a. (Ord v, Ord r) =&gt; Term (F' r) v a -&gt; Set r
+</span><a href="U.Codebase.Type.html#dependencies"><span class="hs-identifier hs-var">Type.dependencies</span></a></span><span> </span><span class="annot"><span class="annottext">[TypeR r v]
+</span><a href="#local-6989586621679114218"><span class="hs-identifier hs-var">cts</span></a></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">data</span><span> </span><span id="V"><span class="annot"><a href="U.Codebase.Decl.html#V"><span class="hs-identifier hs-var">V</span></a></span></span><span> </span><span id="local-6989586621679114214"><span class="annot"><a href="#local-6989586621679114214"><span class="hs-identifier hs-type">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Bound"><span class="annot"><a href="U.Codebase.Decl.html#Bound"><span class="hs-identifier hs-var">Bound</span></a></span></span><span> </span><span class="annot"><a href="#local-6989586621679114214"><span class="hs-identifier hs-type">v</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Ctor"><span class="annot"><a href="U.Codebase.Decl.html#Ctor"><span class="hs-identifier hs-var">Ctor</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="hs-keyword">data</span><span> </span><span id="F"><span class="annot"><a href="U.Codebase.Decl.html#F"><span class="hs-identifier hs-var">F</span></a></span></span><span> </span><span id="local-6989586621679114211"><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Type"><span class="annot"><a href="U.Codebase.Decl.html#Type"><span class="hs-identifier hs-var">Type</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Type.html#FD"><span class="hs-identifier hs-type">Type.FD</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LetRec"><span class="annot"><a href="U.Codebase.Decl.html#LetRec"><span class="hs-identifier hs-var">LetRec</span></a></span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Constructors"><span class="annot"><a href="U.Codebase.Decl.html#Constructors"><span class="hs-identifier hs-var">Constructors</span></a></span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Modified"><span class="annot"><a href="U.Codebase.Decl.html#Modified"><span class="hs-identifier hs-var">Modified</span></a></span></span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#DeclType"><span class="hs-identifier hs-type">DeclType</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Decl.html#Modifier"><span class="hs-identifier hs-type">Modifier</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679114211"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679114202"><span id="local-6989586621679114204"><span class="annot"><span class="annottext">a -&gt; F b -&gt; F a
+(a -&gt; b) -&gt; F a -&gt; F b
+(forall a b. (a -&gt; b) -&gt; F a -&gt; F b)
+-&gt; (forall a b. a -&gt; F b -&gt; F a) -&gt; Functor F
+forall a b. a -&gt; F b -&gt; F a
+forall a b. (a -&gt; b) -&gt; F a -&gt; F b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+&lt;$ :: a -&gt; F b -&gt; F a
+$c&lt;$ :: forall a b. a -&gt; F b -&gt; F a
+fmap :: (a -&gt; b) -&gt; F a -&gt; F b
+$cfmap :: forall a b. (a -&gt; b) -&gt; F a -&gt; F b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114167"><span id="local-6989586621679114169"><span id="local-6989586621679114171"><span id="local-6989586621679114173"><span id="local-6989586621679114175"><span id="local-6989586621679114177"><span id="local-6989586621679114179"><span id="local-6989586621679114181"><span id="local-6989586621679114183"><span id="local-6989586621679114185"><span id="local-6989586621679114187"><span id="local-6989586621679114189"><span id="local-6989586621679114191"><span id="local-6989586621679114193"><span id="local-6989586621679114195"><span id="local-6989586621679114197"><span id="local-6989586621679114199"><span class="annot"><span class="annottext">F a -&gt; Bool
+(a -&gt; m) -&gt; F a -&gt; m
+(a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+(forall m. Monoid m =&gt; F m -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; F a -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; F a -&gt; m)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; F a -&gt; a)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; F a -&gt; a)
+-&gt; (forall a. F a -&gt; [a])
+-&gt; (forall a. F a -&gt; Bool)
+-&gt; (forall a. F a -&gt; Int)
+-&gt; (forall a. Eq a =&gt; a -&gt; F a -&gt; Bool)
+-&gt; (forall a. Ord a =&gt; F a -&gt; a)
+-&gt; (forall a. Ord a =&gt; F a -&gt; a)
+-&gt; (forall a. Num a =&gt; F a -&gt; a)
+-&gt; (forall a. Num a =&gt; F a -&gt; a)
+-&gt; Foldable F
+forall a. Eq a =&gt; a -&gt; F a -&gt; Bool
+forall a. Num a =&gt; F a -&gt; a
+forall a. Ord a =&gt; F a -&gt; a
+forall m. Monoid m =&gt; F m -&gt; m
+forall a. F a -&gt; Bool
+forall a. F a -&gt; Int
+forall a. F a -&gt; [a]
+forall a. (a -&gt; a -&gt; a) -&gt; F a -&gt; a
+forall m a. Monoid m =&gt; (a -&gt; m) -&gt; F a -&gt; m
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b
+forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+forall (t :: * -&gt; *).
+(forall m. Monoid m =&gt; t m -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; t a -&gt; a)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; t a -&gt; a)
+-&gt; (forall a. t a -&gt; [a])
+-&gt; (forall a. t a -&gt; Bool)
+-&gt; (forall a. t a -&gt; Int)
+-&gt; (forall a. Eq a =&gt; a -&gt; t a -&gt; Bool)
+-&gt; (forall a. Ord a =&gt; t a -&gt; a)
+-&gt; (forall a. Ord a =&gt; t a -&gt; a)
+-&gt; (forall a. Num a =&gt; t a -&gt; a)
+-&gt; (forall a. Num a =&gt; t a -&gt; a)
+-&gt; Foldable t
+product :: F a -&gt; a
+$cproduct :: forall a. Num a =&gt; F a -&gt; a
+sum :: F a -&gt; a
+$csum :: forall a. Num a =&gt; F a -&gt; a
+minimum :: F a -&gt; a
+$cminimum :: forall a. Ord a =&gt; F a -&gt; a
+maximum :: F a -&gt; a
+$cmaximum :: forall a. Ord a =&gt; F a -&gt; a
+elem :: a -&gt; F a -&gt; Bool
+$celem :: forall a. Eq a =&gt; a -&gt; F a -&gt; Bool
+length :: F a -&gt; Int
+$clength :: forall a. F a -&gt; Int
+null :: F a -&gt; Bool
+$cnull :: forall a. F a -&gt; Bool
+toList :: F a -&gt; [a]
+$ctoList :: forall a. F a -&gt; [a]
+foldl1 :: (a -&gt; a -&gt; a) -&gt; F a -&gt; a
+$cfoldl1 :: forall a. (a -&gt; a -&gt; a) -&gt; F a -&gt; a
+foldr1 :: (a -&gt; a -&gt; a) -&gt; F a -&gt; a
+$cfoldr1 :: forall a. (a -&gt; a -&gt; a) -&gt; F a -&gt; a
+foldl' :: (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b
+$cfoldl' :: forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b
+foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b
+$cfoldl :: forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; F a -&gt; b
+foldr' :: (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+$cfoldr' :: forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+$cfoldr :: forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; F a -&gt; b
+foldMap' :: (a -&gt; m) -&gt; F a -&gt; m
+$cfoldMap' :: forall m a. Monoid m =&gt; (a -&gt; m) -&gt; F a -&gt; m
+foldMap :: (a -&gt; m) -&gt; F a -&gt; m
+$cfoldMap :: forall m a. Monoid m =&gt; (a -&gt; m) -&gt; F a -&gt; m
+fold :: F m -&gt; m
+$cfold :: forall m. Monoid m =&gt; F m -&gt; m
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Foldable</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679114160"><span id="local-6989586621679114162"><span id="local-6989586621679114164"><span class="annot"><span class="annottext">Int -&gt; F a -&gt; ShowS
+[F a] -&gt; ShowS
+F a -&gt; String
+(Int -&gt; F a -&gt; ShowS)
+-&gt; (F a -&gt; String) -&gt; ([F a] -&gt; ShowS) -&gt; Show (F a)
+forall a. Show a =&gt; Int -&gt; F a -&gt; ShowS
+forall a. Show a =&gt; [F a] -&gt; ShowS
+forall a. Show a =&gt; F a -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [F a] -&gt; ShowS
+$cshowList :: forall a. Show a =&gt; [F a] -&gt; ShowS
+show :: F a -&gt; String
+$cshow :: forall a. Show a =&gt; F a -&gt; String
+showsPrec :: Int -&gt; F a -&gt; ShowS
+$cshowsPrec :: forall a. Show a =&gt; Int -&gt; F a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span></pre></body></html>

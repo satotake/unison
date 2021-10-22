@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">U.Codebase.Sqlite.Branch.Full</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Map</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Set</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Set</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">U.Codebase.Reference</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reference'</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">U.Codebase.Referent</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Referent'</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html"><span class="hs-identifier">U.Codebase.Sqlite.DbId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#BranchObjectId"><span class="hs-identifier">BranchObjectId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#CausalHashId"><span class="hs-identifier">CausalHashId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#ObjectId"><span class="hs-identifier">ObjectId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#PatchObjectId"><span class="hs-identifier">PatchObjectId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#TextId"><span class="hs-identifier">TextId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html"><span class="hs-identifier">U.Codebase.Sqlite.LocalIds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalBranchChildId"><span class="hs-identifier">LocalBranchChildId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalDefnId"><span class="hs-identifier">LocalDefnId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalPatchObjectId"><span class="hs-identifier">LocalPatchObjectId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalTextId"><span class="hs-identifier">LocalTextId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">U.Util.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Map</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bifunctor</span></span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">bimap</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Set</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Set</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">type</span><span> </span><span id="LocalBranch"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#LocalBranch"><span class="hs-identifier hs-var">LocalBranch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch%27"><span class="hs-identifier hs-type">Branch'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalTextId"><span class="hs-identifier hs-type">LocalTextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalDefnId"><span class="hs-identifier hs-type">LocalDefnId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalPatchObjectId"><span class="hs-identifier hs-type">LocalPatchObjectId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalBranchChildId"><span class="hs-identifier hs-type">LocalBranchChildId</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">type</span><span> </span><span id="DbBranch"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#DbBranch"><span class="hs-identifier hs-var">DbBranch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch%27"><span class="hs-identifier hs-type">Branch'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#TextId"><span class="hs-identifier hs-type">TextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#ObjectId"><span class="hs-identifier hs-type">ObjectId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#PatchObjectId"><span class="hs-identifier hs-type">PatchObjectId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#BranchObjectId"><span class="hs-identifier hs-type">BranchObjectId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#CausalHashId"><span class="hs-identifier hs-type">CausalHashId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">type</span><span> </span><span id="Referent%27%27"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Referent%27%27"><span class="hs-identifier hs-var">Referent''</span></a></span></span><span> </span><span id="local-6989586621679257772"><span class="annot"><a href="#local-6989586621679257772"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span id="local-6989586621679257771"><span class="annot"><a href="#local-6989586621679257771"><span class="hs-identifier hs-type">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Referent'</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference'</span></span><span> </span><span class="annot"><a href="#local-6989586621679257772"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257771"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference'</span></span><span> </span><span class="annot"><a href="#local-6989586621679257772"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257771"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">data</span><span> </span><span id="Branch%27"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch%27"><span class="hs-identifier hs-var">Branch'</span></a></span></span><span> </span><span id="local-6989586621679257810"><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span id="local-6989586621679257809"><span class="annot"><a href="#local-6989586621679257809"><span class="hs-identifier hs-type">h</span></a></span></span><span> </span><span id="local-6989586621679257808"><span class="annot"><a href="#local-6989586621679257808"><span class="hs-identifier hs-type">p</span></a></span></span><span> </span><span id="local-6989586621679257807"><span class="annot"><a href="#local-6989586621679257807"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Branch"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch"><span class="hs-identifier hs-var">Branch</span></a></span></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="terms"><span class="annot"><span class="annottext">Branch' t h p c
+-&gt; Map t (Map (Referent'' t h) (MetadataSetFormat' t h))
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#terms"><span class="hs-identifier hs-var hs-var">terms</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Referent%27%27"><span class="hs-identifier hs-type">Referent''</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257809"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#MetadataSetFormat%27"><span class="hs-identifier hs-type">MetadataSetFormat'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257809"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span id="types"><span class="annot"><span class="annottext">Branch' t h p c
+-&gt; Map t (Map (Reference' t h) (MetadataSetFormat' t h))
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#types"><span class="hs-identifier hs-var hs-var">types</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference'</span></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257809"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#MetadataSetFormat%27"><span class="hs-identifier hs-type">MetadataSetFormat'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257809"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span id="patches"><span class="annot"><span class="annottext">Branch' t h p c -&gt; Map t p
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#patches"><span class="hs-identifier hs-var hs-var">patches</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257808"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>    </span><span id="children"><span class="annot"><span class="annottext">Branch' t h p c -&gt; Map t c
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#children"><span class="hs-identifier hs-var hs-var">children</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679257810"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257807"><span class="hs-identifier hs-type">c</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679257760"><span id="local-6989586621679257762"><span id="local-6989586621679257764"><span class="annot"><span class="annottext">Int -&gt; Branch' t h p c -&gt; ShowS
+[Branch' t h p c] -&gt; ShowS
+Branch' t h p c -&gt; String
+(Int -&gt; Branch' t h p c -&gt; ShowS)
+-&gt; (Branch' t h p c -&gt; String)
+-&gt; ([Branch' t h p c] -&gt; ShowS)
+-&gt; Show (Branch' t h p c)
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+Int -&gt; Branch' t h p c -&gt; ShowS
+forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+[Branch' t h p c] -&gt; ShowS
+forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+Branch' t h p c -&gt; String
+showList :: [Branch' t h p c] -&gt; ShowS
+$cshowList :: forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+[Branch' t h p c] -&gt; ShowS
+show :: Branch' t h p c -&gt; String
+$cshow :: forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+Branch' t h p c -&gt; String
+showsPrec :: Int -&gt; Branch' t h p c -&gt; ShowS
+$cshowsPrec :: forall t h p c.
+(Show t, Show h, Show p, Show c) =&gt;
+Int -&gt; Branch' t h p c -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">type</span><span> </span><span id="LocalMetadataSet"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#LocalMetadataSet"><span class="hs-identifier hs-var">LocalMetadataSet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#MetadataSetFormat%27"><span class="hs-identifier hs-type">MetadataSetFormat'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalTextId"><span class="hs-identifier hs-type">LocalTextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.LocalIds.html#LocalDefnId"><span class="hs-identifier hs-type">LocalDefnId</span></a></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">type</span><span> </span><span id="DbMetadataSet"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#DbMetadataSet"><span class="hs-identifier hs-var">DbMetadataSet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#MetadataSetFormat%27"><span class="hs-identifier hs-type">MetadataSetFormat'</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#TextId"><span class="hs-identifier hs-type">TextId</span></a></span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.DbId.html#ObjectId"><span class="hs-identifier hs-type">ObjectId</span></a></span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">data</span><span> </span><span id="MetadataSetFormat%27"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#MetadataSetFormat%27"><span class="hs-identifier hs-var">MetadataSetFormat'</span></a></span></span><span> </span><span id="local-6989586621679257795"><span class="annot"><a href="#local-6989586621679257795"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span id="local-6989586621679257794"><span class="annot"><a href="#local-6989586621679257794"><span class="hs-identifier hs-type">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Inline"><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Inline"><span class="hs-identifier hs-var">Inline</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Set</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reference'</span></span><span> </span><span class="annot"><a href="#local-6989586621679257795"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257794"><span class="hs-identifier hs-type">h</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679257750"><span id="local-6989586621679257752"><span id="local-6989586621679257754"><span class="annot"><span class="annottext">Int -&gt; MetadataSetFormat' t h -&gt; ShowS
+[MetadataSetFormat' t h] -&gt; ShowS
+MetadataSetFormat' t h -&gt; String
+(Int -&gt; MetadataSetFormat' t h -&gt; ShowS)
+-&gt; (MetadataSetFormat' t h -&gt; String)
+-&gt; ([MetadataSetFormat' t h] -&gt; ShowS)
+-&gt; Show (MetadataSetFormat' t h)
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+forall t h.
+(Show t, Show h) =&gt;
+Int -&gt; MetadataSetFormat' t h -&gt; ShowS
+forall t h. (Show t, Show h) =&gt; [MetadataSetFormat' t h] -&gt; ShowS
+forall t h. (Show t, Show h) =&gt; MetadataSetFormat' t h -&gt; String
+showList :: [MetadataSetFormat' t h] -&gt; ShowS
+$cshowList :: forall t h. (Show t, Show h) =&gt; [MetadataSetFormat' t h] -&gt; ShowS
+show :: MetadataSetFormat' t h -&gt; String
+$cshow :: forall t h. (Show t, Show h) =&gt; MetadataSetFormat' t h -&gt; String
+showsPrec :: Int -&gt; MetadataSetFormat' t h -&gt; ShowS
+$cshowsPrec :: forall t h.
+(Show t, Show h) =&gt;
+Int -&gt; MetadataSetFormat' t h -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#quadmap"><span class="hs-identifier hs-type">quadmap</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679257748"><span class="annot"><a href="#local-6989586621679257748"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span id="local-6989586621679257747"><span class="annot"><a href="#local-6989586621679257747"><span class="hs-identifier hs-type">h</span></a></span></span><span> </span><span id="local-6989586621679257746"><span class="annot"><a href="#local-6989586621679257746"><span class="hs-identifier hs-type">p</span></a></span></span><span> </span><span id="local-6989586621679257745"><span class="annot"><a href="#local-6989586621679257745"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span id="local-6989586621679257744"><span class="annot"><a href="#local-6989586621679257744"><span class="hs-identifier hs-type">t'</span></a></span></span><span> </span><span id="local-6989586621679257743"><span class="annot"><a href="#local-6989586621679257743"><span class="hs-identifier hs-type">h'</span></a></span></span><span> </span><span id="local-6989586621679257742"><span class="annot"><a href="#local-6989586621679257742"><span class="hs-identifier hs-type">p'</span></a></span></span><span> </span><span id="local-6989586621679257741"><span class="annot"><a href="#local-6989586621679257741"><span class="hs-identifier hs-type">c'</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679257744"><span class="hs-identifier hs-type">t'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679257743"><span class="hs-identifier hs-type">h'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679257748"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679257744"><span class="hs-identifier hs-type">t'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679257747"><span class="hs-identifier hs-type">h</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679257743"><span class="hs-identifier hs-type">h'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679257746"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679257742"><span class="hs-identifier hs-type">p'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679257745"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679257741"><span class="hs-identifier hs-type">c'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch%27"><span class="hs-identifier hs-type">Branch'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257748"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257747"><span class="hs-identifier hs-type">h</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257746"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257745"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch%27"><span class="hs-identifier hs-type">Branch'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257744"><span class="hs-identifier hs-type">t'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257743"><span class="hs-identifier hs-type">h'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257742"><span class="hs-identifier hs-type">p'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679257741"><span class="hs-identifier hs-type">c'</span></a></span><span>
+</span><span id="line-38"></span><span id="quadmap"><span class="annot"><span class="annottext">quadmap :: (t -&gt; t')
+-&gt; (h -&gt; h')
+-&gt; (p -&gt; p')
+-&gt; (c -&gt; c')
+-&gt; Branch' t h p c
+-&gt; Branch' t' h' p' c'
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#quadmap"><span class="hs-identifier hs-var hs-var">quadmap</span></a></span></span><span> </span><span id="local-6989586621679257740"><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span></span><span> </span><span id="local-6989586621679257739"><span class="annot"><span class="annottext">h -&gt; h'
+</span><a href="#local-6989586621679257739"><span class="hs-identifier hs-var">fh</span></a></span></span><span> </span><span id="local-6989586621679257738"><span class="annot"><span class="annottext">p -&gt; p'
+</span><a href="#local-6989586621679257738"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621679257737"><span class="annot"><span class="annottext">c -&gt; c'
+</span><a href="#local-6989586621679257737"><span class="hs-identifier hs-var">fc</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span id="local-6989586621679257736"><span class="annot"><span class="annottext">Map t (Map (Referent'' t h) (MetadataSetFormat' t h))
+</span><a href="#local-6989586621679257736"><span class="hs-identifier hs-var">terms</span></a></span></span><span> </span><span id="local-6989586621679257735"><span class="annot"><span class="annottext">Map t (Map (Reference' t h) (MetadataSetFormat' t h))
+</span><a href="#local-6989586621679257735"><span class="hs-identifier hs-var">types</span></a></span></span><span> </span><span id="local-6989586621679257734"><span class="annot"><span class="annottext">Map t p
+</span><a href="#local-6989586621679257734"><span class="hs-identifier hs-var">patches</span></a></span></span><span> </span><span id="local-6989586621679257733"><span class="annot"><span class="annottext">Map t c
+</span><a href="#local-6989586621679257733"><span class="hs-identifier hs-var">children</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><span class="annottext">Map t' (Map (Referent'' t' h') (MetadataSetFormat' t' h'))
+-&gt; Map t' (Map (Reference' t' h') (MetadataSetFormat' t' h'))
+-&gt; Map t' p'
+-&gt; Map t' c'
+-&gt; Branch' t' h' p' c'
+forall t h p c.
+Map t (Map (Referent'' t h) (MetadataSetFormat' t h))
+-&gt; Map t (Map (Reference' t h) (MetadataSetFormat' t h))
+-&gt; Map t p
+-&gt; Map t c
+-&gt; Branch' t h p c
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#Branch"><span class="hs-identifier hs-var">Branch</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t')
+-&gt; (Map (Referent'' t h) (MetadataSetFormat' t h)
+    -&gt; Map (Referent'' t' h') (MetadataSetFormat' t' h'))
+-&gt; Map t (Map (Referent'' t h) (MetadataSetFormat' t h))
+-&gt; Map t' (Map (Referent'' t' h') (MetadataSetFormat' t' h'))
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">Map (Referent'' t h) (MetadataSetFormat' t h)
+-&gt; Map (Referent'' t' h') (MetadataSetFormat' t' h')
+</span><a href="#local-6989586621679257731"><span class="hs-identifier hs-var">doTerms</span></a></span><span> </span><span class="annot"><span class="annottext">Map t (Map (Referent'' t h) (MetadataSetFormat' t h))
+</span><a href="#local-6989586621679257736"><span class="hs-identifier hs-var">terms</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t')
+-&gt; (Map (Reference' t h) (MetadataSetFormat' t h)
+    -&gt; Map (Reference' t' h') (MetadataSetFormat' t' h'))
+-&gt; Map t (Map (Reference' t h) (MetadataSetFormat' t h))
+-&gt; Map t' (Map (Reference' t' h') (MetadataSetFormat' t' h'))
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">Map (Reference' t h) (MetadataSetFormat' t h)
+-&gt; Map (Reference' t' h') (MetadataSetFormat' t' h')
+</span><a href="#local-6989586621679257730"><span class="hs-identifier hs-var">doTypes</span></a></span><span> </span><span class="annot"><span class="annottext">Map t (Map (Reference' t h) (MetadataSetFormat' t h))
+</span><a href="#local-6989586621679257735"><span class="hs-identifier hs-var">types</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (p -&gt; p') -&gt; Map t p -&gt; Map t' p'
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">p -&gt; p'
+</span><a href="#local-6989586621679257738"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">Map t p
+</span><a href="#local-6989586621679257734"><span class="hs-identifier hs-var">patches</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (c -&gt; c') -&gt; Map t c -&gt; Map t' c'
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">c -&gt; c'
+</span><a href="#local-6989586621679257737"><span class="hs-identifier hs-var">fc</span></a></span><span> </span><span class="annot"><span class="annottext">Map t c
+</span><a href="#local-6989586621679257733"><span class="hs-identifier hs-var">children</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621679257731"><span class="annot"><span class="annottext">doTerms :: Map (Referent'' t h) (MetadataSetFormat' t h)
+-&gt; Map (Referent'' t' h') (MetadataSetFormat' t' h')
+</span><a href="#local-6989586621679257731"><span class="hs-identifier hs-var hs-var">doTerms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Referent'' t h -&gt; Referent'' t' h')
+-&gt; (MetadataSetFormat' t h -&gt; MetadataSetFormat' t' h')
+-&gt; Map (Referent'' t h) (MetadataSetFormat' t h)
+-&gt; Map (Referent'' t' h') (MetadataSetFormat' t' h')
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Reference' t h -&gt; Reference' t' h')
+-&gt; (Reference' t h -&gt; Reference' t' h')
+-&gt; Referent'' t h
+-&gt; Referent'' t' h'
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (h -&gt; h') -&gt; Reference' t h -&gt; Reference' t' h'
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">h -&gt; h'
+</span><a href="#local-6989586621679257739"><span class="hs-identifier hs-var">fh</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (h -&gt; h') -&gt; Reference' t h -&gt; Reference' t' h'
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">h -&gt; h'
+</span><a href="#local-6989586621679257739"><span class="hs-identifier hs-var">fh</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MetadataSetFormat' t h -&gt; MetadataSetFormat' t' h'
+</span><a href="#local-6989586621679257729"><span class="hs-identifier hs-var">doMetadata</span></a></span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679257730"><span class="annot"><span class="annottext">doTypes :: Map (Reference' t h) (MetadataSetFormat' t h)
+-&gt; Map (Reference' t' h') (MetadataSetFormat' t' h')
+</span><a href="#local-6989586621679257730"><span class="hs-identifier hs-var hs-var">doTypes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Reference' t h -&gt; Reference' t' h')
+-&gt; (MetadataSetFormat' t h -&gt; MetadataSetFormat' t' h')
+-&gt; Map (Reference' t h) (MetadataSetFormat' t h)
+-&gt; Map (Reference' t' h') (MetadataSetFormat' t' h')
+forall a' a b b'.
+Ord a' =&gt;
+(a -&gt; a') -&gt; (b -&gt; b') -&gt; Map a b -&gt; Map a' b'
+</span><span class="hs-identifier hs-var">Map.bimap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (h -&gt; h') -&gt; Reference' t h -&gt; Reference' t' h'
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">h -&gt; h'
+</span><a href="#local-6989586621679257739"><span class="hs-identifier hs-var">fh</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MetadataSetFormat' t h -&gt; MetadataSetFormat' t' h'
+</span><a href="#local-6989586621679257729"><span class="hs-identifier hs-var">doMetadata</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679257729"><span class="annot"><span class="annottext">doMetadata :: MetadataSetFormat' t h -&gt; MetadataSetFormat' t' h'
+</span><a href="#local-6989586621679257729"><span class="hs-identifier hs-var hs-var">doMetadata</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="U.Codebase.Sqlite.Branch.Full.html#Inline"><span class="hs-identifier hs-type">Inline</span></a></span><span> </span><span id="local-6989586621679257728"><span class="annot"><span class="annottext">Set (Reference' t h)
+</span><a href="#local-6989586621679257728"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Set (Reference' t' h') -&gt; MetadataSetFormat' t' h'
+forall t h. Set (Reference' t h) -&gt; MetadataSetFormat' t h
+</span><a href="U.Codebase.Sqlite.Branch.Full.html#Inline"><span class="hs-identifier hs-var">Inline</span></a></span><span> </span><span class="annot"><span class="annottext">(Set (Reference' t' h') -&gt; MetadataSetFormat' t' h')
+-&gt; (Set (Reference' t h) -&gt; Set (Reference' t' h'))
+-&gt; Set (Reference' t h)
+-&gt; MetadataSetFormat' t' h'
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Reference' t h -&gt; Reference' t' h')
+-&gt; Set (Reference' t h) -&gt; Set (Reference' t' h')
+forall b a. Ord b =&gt; (a -&gt; b) -&gt; Set a -&gt; Set b
+</span><span class="hs-identifier hs-var">Set.map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(t -&gt; t') -&gt; (h -&gt; h') -&gt; Reference' t h -&gt; Reference' t' h'
+forall (p :: * -&gt; * -&gt; *) a b c d.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; (c -&gt; d) -&gt; p a c -&gt; p b d
+</span><span class="hs-identifier hs-var">bimap</span></span><span> </span><span class="annot"><span class="annottext">t -&gt; t'
+</span><a href="#local-6989586621679257740"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">h -&gt; h'
+</span><a href="#local-6989586621679257739"><span class="hs-identifier hs-var">fh</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Set (Reference' t h) -&gt; MetadataSetFormat' t' h')
+-&gt; Set (Reference' t h) -&gt; MetadataSetFormat' t' h'
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Set (Reference' t h)
+</span><a href="#local-6989586621679257728"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-48"></span></pre></body></html>

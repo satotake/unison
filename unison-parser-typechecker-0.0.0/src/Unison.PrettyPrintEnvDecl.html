@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# Language OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Unison.PrettyPrintEnvDecl</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unison.PrettyPrintEnvDecl.html#PrettyPrintEnvDecl"><span class="hs-identifier">PrettyPrintEnvDecl</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Unison.PrettyPrintEnv.html"><span class="hs-identifier">Unison.PrettyPrintEnv</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unison.PrettyPrintEnv.html#PrettyPrintEnv"><span class="hs-identifier">PrettyPrintEnv</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- A pair of PrettyPrintEnvs:</span><span>
+</span><span id="line-8"></span><span class="hs-comment">--   - suffixifiedPPE uses the shortest unique suffix</span><span>
+</span><span id="line-9"></span><span class="hs-comment">--   - unsuffixifiedPPE uses the shortest full name</span><span>
+</span><span id="line-10"></span><span class="hs-comment">--</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- Generally, we want declarations LHS (the `x` in `x = 23`) to use the</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- unsuffixified names, so the LHS is an accurate description of where in the</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- namespace the definition lives. For everywhere else, we can use the</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- suffixified version.</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">data</span><span> </span><span id="PrettyPrintEnvDecl"><span class="annot"><a href="Unison.PrettyPrintEnvDecl.html#PrettyPrintEnvDecl"><span class="hs-identifier hs-var">PrettyPrintEnvDecl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="PrettyPrintEnvDecl"><span class="annot"><a href="Unison.PrettyPrintEnvDecl.html#PrettyPrintEnvDecl"><span class="hs-identifier hs-var">PrettyPrintEnvDecl</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-16"></span><span>  </span><span id="unsuffixifiedPPE"><span class="annot"><span class="annottext">PrettyPrintEnvDecl -&gt; PrettyPrintEnv
+</span><a href="Unison.PrettyPrintEnvDecl.html#unsuffixifiedPPE"><span class="hs-identifier hs-var hs-var">unsuffixifiedPPE</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.PrettyPrintEnv.html#PrettyPrintEnv"><span class="hs-identifier hs-type">PrettyPrintEnv</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>  </span><span id="suffixifiedPPE"><span class="annot"><span class="annottext">PrettyPrintEnvDecl -&gt; PrettyPrintEnv
+</span><a href="Unison.PrettyPrintEnvDecl.html#suffixifiedPPE"><span class="hs-identifier hs-var hs-var">suffixifiedPPE</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unison.PrettyPrintEnv.html#PrettyPrintEnv"><span class="hs-identifier hs-type">PrettyPrintEnv</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681973637"><span id="local-6989586621681973639"><span id="local-6989586621681973641"><span class="annot"><span class="annottext">Int -&gt; PrettyPrintEnvDecl -&gt; ShowS
+[PrettyPrintEnvDecl] -&gt; ShowS
+PrettyPrintEnvDecl -&gt; String
+(Int -&gt; PrettyPrintEnvDecl -&gt; ShowS)
+-&gt; (PrettyPrintEnvDecl -&gt; String)
+-&gt; ([PrettyPrintEnvDecl] -&gt; ShowS)
+-&gt; Show PrettyPrintEnvDecl
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [PrettyPrintEnvDecl] -&gt; ShowS
+$cshowList :: [PrettyPrintEnvDecl] -&gt; ShowS
+show :: PrettyPrintEnvDecl -&gt; String
+$cshow :: PrettyPrintEnvDecl -&gt; String
+showsPrec :: Int -&gt; PrettyPrintEnvDecl -&gt; ShowS
+$cshowsPrec :: Int -&gt; PrettyPrintEnvDecl -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span></pre></body></html>
